@@ -1,15 +1,24 @@
 CC      = g++
-LDLIBS  = -lglfw -lglad -lGL 
+
+# Link OpenGL library / framework depending on the system
+libgl_Linux = -lGL
+libgl_Darwin = -framework OpenGL
+
+LDLIBS  = -lglfw -lglad $(libgl_$(shell uname -s))
 LDFLAGS = -ggdb -Wall -pedantic
 CFLAGS  = -I./src
+INC = -I./include
 
 SRCDIR  = src
 SRCEXT  = cpp
 SOURCES = $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 
-OBJECTS= $(SOURCES:.cpp=.o)
-EXECUTABLE=build/metaballs
+OBJECTS = $(SOURCES:.cpp=.o)
+BUILDIR = build/
+EXECUTABLE = build/metaballs
 
+# Create build directory if not exist
+$(shell mkdir -p $(BUILDIR))
 
 all: $(SOURCES) $(EXECUTABLE)
 
