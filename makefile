@@ -27,7 +27,7 @@ $(EXECUTABLE): $(OBJECTS)
 
 
 .cpp.o:
-	$(CC) -c $(CFLAGS) $< -o $@
+	$(CC) $(INC) -c $(CFLAGS) $< -o $@
 
 clean:
 	rm -rf $(OBJECTS) $(EXECUTABLE)
