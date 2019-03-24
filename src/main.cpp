@@ -54,12 +54,30 @@ int main()
 
     // Vertex definitions
     // Normalized device coordinates
-    float vertices[] =
-    {
-        -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0,
-        0.0f, 0.5f, 0.0f
+    //Vertex v1 = Vertex(-0.5f, -0.5f, 0.0f);
+    //Vertex v2 = Vertex(0.5f, -0.5f, 0.0f);
+    //Vertex v3 = Vertex(0.0f, 0.5f, 0.0f);
+    //Triangle t = Triangle(v1, v2, v3);
+
+    //float* vertices = t.AsArray(); 
+
+    float vertices[] = {
+    0.5f, 0.5f, 0.0f, // top right
+    0.5f, -0.5f, 0.0f, // bottom right
+    -0.5f, -0.5f, 0.0f, // bottom left
+    -0.5f, 0.5f, 0.0f // top left
     };
+    unsigned int indices[] = { 
+    0, 1, 3, // first triangle
+    1, 2, 3 // second triangle
+    };
+
+    // Element buffer objecct (index buffer)
+    unsigned int EBO;
+    glGenBuffers(1, &EBO);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // Vertex buffer object, gives instant access to vertices in the GPU
     // GenBuffers yields a unique ID for the newly created buffer
@@ -112,8 +130,10 @@ int main()
 
         // Render the triangle
         glUseProgram(SHADER_PROGRAM);
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         
         // check and call events and swap the buffers
         glfwPollEvents();
