@@ -1,13 +1,16 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
 // Vertex shader
 const char* vertex_shader =
     "#version 400\n"
     "in vec3 vp;"
+    "uniform mat4 MVP;"  // uniform = value stays the same for the whole mesh
     "void main() {"
-    "  gl_Position = vec4(vp, 1.0);"
+    "  gl_Position = MVP * vec4(vp, 1.0);"
     "}";
 
 //Fragment shader
@@ -53,14 +56,6 @@ int main()
     }
 
     // Vertex definitions
-    // Normalized device coordinates
-    //Vertex v1 = Vertex(-0.5f, -0.5f, 0.0f);
-    //Vertex v2 = Vertex(0.5f, -0.5f, 0.0f);
-    //Vertex v3 = Vertex(0.0f, 0.5f, 0.0f);
-    //Triangle t = Triangle(v1, v2, v3);
-
-    //float* vertices = t.AsArray(); 
-
     float vertices[] = {
     0.5f, 0.5f, 0.0f, // top right
     0.5f, -0.5f, 0.0f, // bottom right
@@ -118,6 +113,30 @@ int main()
     glAttachShader(SHADER_PROGRAM, VS);
     glLinkProgram(SHADER_PROGRAM);
 
+
+    // Model matrx (identity, model will be at the origin)
+    glm::mat4 modelMatrix = glm::mat4(1.0f);
+
+    //glm::mat4 viewMatrix = glm::translate(glm::mat4(), glm::vec3(-3.0f, 0.0f, 0.0f));
+    glm::mat4 viewMatrix = glm::lookAt(
+        glm::vec3(4,3,3),   // Camera position
+        glm::vec3(0,0,0),   // LookAt position
+        glm::vec3(0,1,0)    // Up vector
+    );
+
+    float FOV = 50.0f;
+    glm::mat4 projectionMatrix = glm::perspective(
+        glm::radians(FOV),  // FOV
+        4.0f / 3.0f,        // Aspect ratio
+        0.1f,               // Near clipping plane
+        100.0f              // Far clipping plane
+    );
+
+    glm::mat4 mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
+
+    // Get an id for the mvp matrixmvp matrix
+    unsigned int MVP_ID = glGetUniformLocation(SHADER_PROGRAM, "MVP");
+
     // render loop
     while(!glfwWindowShouldClose(window))
     {
@@ -130,6 +149,9 @@ int main()
 
         // Render the triangle
         glUseProgram(SHADER_PROGRAM);
+
+        // Link mvp matrix with the currently boud GLSL shader
+        glUniformMatrix4fv(MVP_ID, 1, false, &mvpMatrix[0][0]);
         
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
