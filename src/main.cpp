@@ -57,14 +57,28 @@ int main()
 
     // Vertex definitions
     float vertices[] = {
-    0.5f, 0.5f, 0.0f, // top right
-    0.5f, -0.5f, 0.0f, // bottom right
-    -0.5f, -0.5f, 0.0f, // bottom left
-    -0.5f, 0.5f, 0.0f // top left
+    0.5f, 0.5f, -0.5f, // top right
+    0.5f, -0.5f, -0.5f, // bottom right
+    -0.5f, -0.5f, -0.5f, // bottom left
+    -0.5f, 0.5f, -0.5f, // top left
+    0.5f, 0.5f, 0.5f,
+    0.5f, -0.5f, 0.5f,
+    -0.5f, -0.5f, 0.5f,
+    -0.5f, 0.5f, 0.5f
     };
     unsigned int indices[] = { 
     0, 1, 3, // first triangle
-    1, 2, 3 // second triangle
+    1, 2, 3, // second triangle
+    4, 5, 7,
+    5, 6, 7,
+    0, 1, 4,
+    1, 4, 5,
+    1, 2, 5,
+    2, 5, 6,
+    2, 3, 6,
+    3, 6, 7,
+    3, 0, 7,
+    0, 7, 4
     };
 
     // Element buffer objecct (index buffer)
@@ -155,7 +169,7 @@ int main()
         
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, 0);
         
         // check and call events and swap the buffers
         glfwPollEvents();
