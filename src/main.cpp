@@ -13,7 +13,21 @@ const char* vertex_shader =
     "  gl_Position = MVP * vec4(vp, 1.0);"
     "}";
 
-//Fragment shader
+// Geometry shader
+const char* geometry_shader =
+    "#version 400\n"
+    "layout(triangles) in;"
+    "layout(triangle_strip, max_vertices = 3) out;"
+    "void main() {"
+    "    for(int i = 0; i < gl_in.length(); ++i)"
+    "    {"
+    "       gl_Position = gl_in[i].gl_Position;"
+    "       EmitVertex();"
+    "    }"
+    "    EndPrimitive();"
+    "}";
+
+// Fragment shader
 const char* fragment_shader =
     "#version 400\n"
     "out vec4 frag_colour;"
@@ -25,6 +39,18 @@ void processInput(GLFWwindow *window)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+}
+
+void CheckShaderCompilationError(const char* shaderName, unsigned int shaderID)
+{
+    int success;
+    char infoLog[512];
+    glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
+    if(!success)
+    {
+        glGetShaderInfoLog(shaderID, 512, NULL, infoLog);
+        std::cout << shaderName << " failed to compile :\n" << infoLog << std::endl;
+    };
 }
 
 int main()
@@ -117,14 +143,21 @@ int main()
     unsigned int VS = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(VS, 1, &vertex_shader, NULL);
     glCompileShader(VS);
+    CheckShaderCompilationError("Vertex Shader", VS);
+    unsigned int GS = glCreateShader(GL_GEOMETRY_SHADER);
+    glShaderSource(GS, 1, &geometry_shader, NULL);
+    glCompileShader(GS);
+    CheckShaderCompilationError("Geometry Shader", GS);
     unsigned int FS = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(FS, 1, &fragment_shader, NULL);
     glCompileShader(FS);
+    CheckShaderCompilationError("Fragment Shader", FS);
     
     // Create the shader program
     unsigned int SHADER_PROGRAM = glCreateProgram();
-    glAttachShader(SHADER_PROGRAM, FS);
     glAttachShader(SHADER_PROGRAM, VS);
+    glAttachShader(SHADER_PROGRAM, GS);
+    glAttachShader(SHADER_PROGRAM, FS);
     glLinkProgram(SHADER_PROGRAM);
 
 
