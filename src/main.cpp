@@ -3,54 +3,45 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
+#include "metaball.h"
+#include "shader.h"
 
-// Vertex shader
-const char* vertex_shader =
-    "#version 400\n"
-    "in vec3 vp;"
-    "uniform mat4 MVP;"  // uniform = value stays the same for the whole mesh
-    "void main() {"
-    "  gl_Position = MVP * vec4(vp, 1.0);"
-    "}";
-
-// Geometry shader
-const char* geometry_shader =
-    "#version 400\n"
-    "layout(triangles) in;"
-    "layout(triangle_strip, max_vertices = 3) out;"
-    "void main() {"
-    "    for(int i = 0; i < gl_in.length(); ++i)"
-    "    {"
-    "       gl_Position = gl_in[i].gl_Position;"
-    "       EmitVertex();"
-    "    }"
-    "    EndPrimitive();"
-    "}";
-
-// Fragment shader
-const char* fragment_shader =
-    "#version 400\n"
-    "out vec4 frag_colour;"
-    "void main() {"
-    "  frag_colour = vec4(0.5, 0.0, 0.5, 1.0);"
-    "}";
+Shader* shader;  //  Let's make the shader global at this moment, just for the sake of recompilation
+PotentialField field(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1), 20);
+Metaball ball(glm::vec3(0, 0, 0), 0.5f);  //  Let's make the metaball global at this moment, just for the sake of control
 
 void processInput(GLFWwindow *window)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-}
-
-void CheckShaderCompilationError(const char* shaderName, unsigned int shaderID)
-{
-    int success;
-    char infoLog[512];
-    glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
-    if(!success)
-    {
-        glGetShaderInfoLog(shaderID, 512, NULL, infoLog);
-        std::cout << shaderName << " failed to compile :\n" << infoLog << std::endl;
-    };
+    if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+        shader->RecompileAndLink(); //  Recompile shader if "R" is pressed
+    if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        ball.position.z += 0.005f;
+    if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        ball.position.z -= 0.005f;
+    if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        ball.position.x += 0.005f;
+    if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        ball.position.x -= 0.005f;
+    if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        ball.position.y += 0.005f;
+    if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        ball.position.y -= 0.005f;
+    {   //  metaball out-of-bound check, nothing to do with glfw input
+        if(ball.position.x < field.minCorner.x)
+            ball.position.x = field.maxCorner.x;
+        if(ball.position.x > field.maxCorner.x)
+            ball.position.x = field.minCorner.x;
+        if(ball.position.y < field.minCorner.y)
+            ball.position.y = field.maxCorner.y;
+        if(ball.position.y > field.maxCorner.y)
+            ball.position.y = field.minCorner.y;
+        if(ball.position.z < field.minCorner.z)
+            ball.position.z = field.maxCorner.z;
+        if(ball.position.z > field.maxCorner.z)
+            ball.position.z = field.minCorner.z;
+    }
 }
 
 int main()
@@ -80,39 +71,9 @@ int main()
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
-
-    // Vertex definitions
-    float vertices[] = {
-    0.5f, 0.5f, -0.5f, // top right
-    0.5f, -0.5f, -0.5f, // bottom right
-    -0.5f, -0.5f, -0.5f, // bottom left
-    -0.5f, 0.5f, -0.5f, // top left
-    0.5f, 0.5f, 0.5f,
-    0.5f, -0.5f, 0.5f,
-    -0.5f, -0.5f, 0.5f,
-    -0.5f, 0.5f, 0.5f
-    };
-    unsigned int indices[] = { 
-    0, 1, 3, // first triangle
-    1, 2, 3, // second triangle
-    4, 5, 7,
-    5, 6, 7,
-    0, 1, 4,
-    1, 4, 5,
-    1, 2, 5,
-    2, 5, 6,
-    2, 3, 6,
-    3, 6, 7,
-    3, 0, 7,
-    0, 7, 4
-    };
-
-    // Element buffer objecct (index buffer)
-    unsigned int EBO;
-    glGenBuffers(1, &EBO);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    
+    // Shader initialization (should be created in run-time, because glad needs to be init first)
+    shader = new Shader();
 
     // Vertex buffer object, gives instant access to vertices in the GPU
     // GenBuffers yields a unique ID for the newly created buffer
@@ -125,7 +86,7 @@ int main()
     // Copy the vertex data to the boud buffer's memory
     // GL_STATIC_DRAW specifies how the GPU should manage the data
     // (static = the data will likely not change)
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, field.fieldSize, field.fieldData, GL_STATIC_DRAW);
 
     // Vertex array object
     // Holds all pur buffers
@@ -137,29 +98,6 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     // Specify the attribute location (0) of the first vertex buffer, and the type of data.
     glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, NULL);
-
-
-    // Compile shaders
-    unsigned int VS = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(VS, 1, &vertex_shader, NULL);
-    glCompileShader(VS);
-    CheckShaderCompilationError("Vertex Shader", VS);
-    unsigned int GS = glCreateShader(GL_GEOMETRY_SHADER);
-    glShaderSource(GS, 1, &geometry_shader, NULL);
-    glCompileShader(GS);
-    CheckShaderCompilationError("Geometry Shader", GS);
-    unsigned int FS = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(FS, 1, &fragment_shader, NULL);
-    glCompileShader(FS);
-    CheckShaderCompilationError("Fragment Shader", FS);
-    
-    // Create the shader program
-    unsigned int SHADER_PROGRAM = glCreateProgram();
-    glAttachShader(SHADER_PROGRAM, VS);
-    glAttachShader(SHADER_PROGRAM, GS);
-    glAttachShader(SHADER_PROGRAM, FS);
-    glLinkProgram(SHADER_PROGRAM);
-
 
     // Model matrx (identity, model will be at the origin)
     glm::mat4 modelMatrix = glm::mat4(1.0f);
@@ -182,31 +120,46 @@ int main()
     glm::mat4 mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
 
     // Get an id for the mvp matrixmvp matrix
-    unsigned int MVP_ID = glGetUniformLocation(SHADER_PROGRAM, "MVP");
-
+    unsigned int MVP_ID = glGetUniformLocation(shader->Program, "MVP");
+    // Get an id for the metaball configuration
+    unsigned int MBpos = glGetUniformLocation(shader->Program, "metaball.position");
+    unsigned int MBrad = glGetUniformLocation(shader->Program, "metaball.radius");
+    unsigned int VHL = glGetUniformLocation(shader->Program, "voxelHalfLength");
+    
+    float startTime = glfwGetTime();
+    float elapsedTime = 0;
     // render loop
     while(!glfwWindowShouldClose(window))
     {
-        // input
-        processInput(window);
-   
-        // rendering commands here
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        float deltaTime = glfwGetTime() - startTime;
+        elapsedTime += deltaTime;
+        if(elapsedTime >= 0.013f)      //  Render at 60 fps
+        {
+            // input
+            processInput(window);
+       
+            // rendering commands here
+            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
 
-        // Render the triangle
-        glUseProgram(SHADER_PROGRAM);
+            // Render the triangle
+            glUseProgram(shader->Program);
 
-        // Link mvp matrix with the currently boud GLSL shader
-        glUniformMatrix4fv(MVP_ID, 1, false, &mvpMatrix[0][0]);
-        
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+            // Link mvp matrix with the currently boud GLSL shader
+            glUniformMatrix4fv(MVP_ID, 1, false, &mvpMatrix[0][0]);
+            
+            glUniform3f(MBpos, ball.position.x, ball.position.y, ball.position.z);
+            glUniform1f(MBrad, ball.radius);
+            glUniform1f(VHL, field.voxelHalfLength);
 
-        glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, 0);
-        
-        // check and call events and swap the buffers
-        glfwPollEvents();
-        glfwSwapBuffers(window);
+            glDrawArrays(GL_POINTS, 0, field.voxelCount);
+            
+            // check and call events and swap the buffers
+            glfwPollEvents();
+            glfwSwapBuffers(window);
+            
+            elapsedTime -= 0.013f;
+        }
     }
 
     return 0;
