@@ -36,6 +36,10 @@ void Shader::CompileShader(unsigned int shaderID, const char* shaderPath)
             shaderSource += line + '\n';
         file.close();
     }
+    else
+    {
+        std::cout << "Could not open file " << shaderPath << ", please check the path!" << std::endl;
+    }
     
     const char* shaderSourceCStr = shaderSource.c_str();
     glShaderSource(shaderID, 1, &shaderSourceCStr, NULL);

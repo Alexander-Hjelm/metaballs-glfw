@@ -21,7 +21,6 @@ public:
         radius(r)
     {
     }
-    inline void Print() { std::cout << "Position: " << glm::to_string(position) << "\tRadius: " << radius << std::endl; }
 };
 
 struct PotentialField
@@ -87,5 +86,4 @@ public:
             }
         }
     }
-    inline void Print() { std::cout << "Area: " << glm::to_string(minCorner) << " to " << glm::to_string(maxCorner) << ", with a total of " << voxelCount << " voxels." << std::endl; }
 };
