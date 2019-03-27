@@ -1,7 +1,7 @@
 #version 400
 
 layout(points) in;
-layout(triangle_strip, max_vertices = 14) out;
+layout(triangle_strip, max_vertices = 15) out;
 
 in vData
 {
@@ -20,37 +20,130 @@ struct Metaball
 };
 uniform Metaball metaball;
 uniform float voxelHalfLength;
+uniform float isolevel;
 uniform mat4 MVP;
 
-const int INDICES[14] = int[14]( 4, 3, 7, 8, 5, 3, 1, 4, 2, 7, 6, 5, 2, 1 );    //  minimalistic way to define a unit cube
+// uniform isampler2D edgeTexture;
+uniform isampler2D triTexture;
+
+//Get edge table value
+// int edgeTableValue(int i){
+//     return texelFetch(edgeTexture, ivec2(0, i), 0).r;
+// }
+
+//Get triangle table value
+int triTableValue(int i, int j){
+    return texelFetch(triTexture, ivec2(j, i), 0).r;
+}
+
+//Compute interpolated vertex along an edge
+vec3 VertexInterp(float isolevel, vec3 v0, vec3 v1,float l0, float l1){
+    return mix(v0, v1, 0.5);
+}
 
 void main() {
 
-    // voxel is not inside the sphere
-    if(distance(metaball.position, vertices[0].position) > metaball.radius)
+    // define eight corner vertices for the cube (voxel)
+    vec3 corners[8];
+    corners[0] = vertices[0].position + vec3(-voxelHalfLength, -voxelHalfLength, +voxelHalfLength);
+    corners[1] = vertices[0].position + vec3(+voxelHalfLength, -voxelHalfLength, +voxelHalfLength);
+    corners[2] = vertices[0].position + vec3(+voxelHalfLength, -voxelHalfLength, -voxelHalfLength);
+    corners[3] = vertices[0].position + vec3(-voxelHalfLength, -voxelHalfLength, -voxelHalfLength);
+    corners[4] = vertices[0].position + vec3(-voxelHalfLength, +voxelHalfLength, +voxelHalfLength);
+    corners[5] = vertices[0].position + vec3(+voxelHalfLength, +voxelHalfLength, +voxelHalfLength);
+    corners[6] = vertices[0].position + vec3(+voxelHalfLength, +voxelHalfLength, -voxelHalfLength);
+    corners[7] = vertices[0].position + vec3(-voxelHalfLength, +voxelHalfLength, -voxelHalfLength);
+
+    // vec3 edges[12];
+    // edges[0]  = vertices[0].position + vec3(0, -voxelHalfLength, +voxelHalfLength);
+    // edges[1]  = vertices[0].position + vec3(+voxelHalfLength, -voxelHalfLength, 0);
+    // edges[2]  = vertices[0].position + vec3(0, -voxelHalfLength, -voxelHalfLength);
+    // edges[3]  = vertices[0].position + vec3(-voxelHalfLength, -voxelHalfLength, 0);
+    // edges[4]  = vertices[0].position + vec3(0, +voxelHalfLength, +voxelHalfLength);
+    // edges[5]  = vertices[0].position + vec3(+voxelHalfLength, +voxelHalfLength, 0);
+    // edges[6]  = vertices[0].position + vec3(0, +voxelHalfLength, -voxelHalfLength);
+    // edges[7]  = vertices[0].position + vec3(-voxelHalfLength, +voxelHalfLength, 0);
+    // edges[8]  = vertices[0].position + vec3(-voxelHalfLength, 0, +voxelHalfLength);
+    // edges[9]  = vertices[0].position + vec3(+voxelHalfLength, +voxelHalfLength, 0);
+    // edges[10] = vertices[0].position + vec3(+voxelHalfLength, 0, -voxelHalfLength);
+    // edges[11] = vertices[0].position + vec3(-voxelHalfLength, -voxelHalfLength, 0);
+
+    float values[8];
+    for(int i = 0; i < 8; ++i)
     {
-        EndPrimitive();
-        return;
+        values[i] = distance(metaball.position, corners[i]);
     }
 
-    // define eight corner vertices for the cube (voxel)
-    vec3 pos[8];
-    pos[0] = vertices[0].position + vec3(-voxelHalfLength, +voxelHalfLength, -voxelHalfLength);
-    pos[1] = vertices[0].position + vec3(+voxelHalfLength, +voxelHalfLength, -voxelHalfLength);
-    pos[2] = vertices[0].position + vec3(-voxelHalfLength, +voxelHalfLength, +voxelHalfLength);
-    pos[3] = vertices[0].position + vec3(+voxelHalfLength, +voxelHalfLength, +voxelHalfLength);
-    pos[4] = vertices[0].position + vec3(-voxelHalfLength, -voxelHalfLength, -voxelHalfLength);
-    pos[5] = vertices[0].position + vec3(+voxelHalfLength, -voxelHalfLength, -voxelHalfLength);
-    pos[6] = vertices[0].position + vec3(+voxelHalfLength, -voxelHalfLength, +voxelHalfLength);
-    pos[7] = vertices[0].position + vec3(-voxelHalfLength, -voxelHalfLength, +voxelHalfLength);
-    
+    // find the suitable look-up cube
+    int cubeindex = 0;
+    if (values[0] < isolevel) cubeindex |= 1;
+    if (values[1] < isolevel) cubeindex |= 2;
+    if (values[2] < isolevel) cubeindex |= 4;
+    if (values[3] < isolevel) cubeindex |= 8;
+    if (values[4] < isolevel) cubeindex |= 16;
+    if (values[5] < isolevel) cubeindex |= 32;
+    if (values[6] < isolevel) cubeindex |= 64;
+    if (values[7] < isolevel) cubeindex |= 128;
+
+    vec3 vertlist[12];
+
+    /* Cube is entirely in/out of the surface */
+    if (cubeindex == 0 || cubeindex == 255)
+        return;
+
+    /* Find the vertices where the surface intersects the cube */
+    vertlist[0]  = VertexInterp(isolevel,corners[0],corners[1],values[0],values[1]);
+    vertlist[1]  = VertexInterp(isolevel,corners[1],corners[2],values[1],values[2]);
+    vertlist[2]  = VertexInterp(isolevel,corners[2],corners[3],values[2],values[3]);
+    vertlist[3]  = VertexInterp(isolevel,corners[3],corners[0],values[3],values[0]);
+    vertlist[4]  = VertexInterp(isolevel,corners[4],corners[5],values[4],values[5]);
+    vertlist[5]  = VertexInterp(isolevel,corners[5],corners[6],values[5],values[6]);
+    vertlist[6]  = VertexInterp(isolevel,corners[6],corners[7],values[6],values[7]);
+    vertlist[7]  = VertexInterp(isolevel,corners[7],corners[4],values[7],values[4]);
+    vertlist[8]  = VertexInterp(isolevel,corners[0],corners[4],values[0],values[4]);
+    vertlist[9]  = VertexInterp(isolevel,corners[1],corners[5],values[1],values[5]);
+    vertlist[10] = VertexInterp(isolevel,corners[2],corners[6],values[2],values[6]);
+    vertlist[11] = VertexInterp(isolevel,corners[3],corners[7],values[3],values[7]);
+
     // push vertex to primitive
-    for(int i = 0; i < 14; ++i)
+    int i = 0;
+    frag.position = vec3(1, 1, 1);
+    while (true)
     {
-        frag.position = vertices[0].position;
-        gl_Position = MVP * vec4(pos[INDICES[i]-1], 1.0);
-        EmitVertex();
+        if(triTableValue(cubeindex, i) != -1)
+        {
+            gl_Position = MVP * vec4(vertlist[triTableValue(cubeindex, i)], 1.0);
+            EmitVertex();
+            gl_Position = MVP * vec4(vertlist[triTableValue(cubeindex, i+1)], 1.0);
+            EmitVertex();
+            gl_Position = MVP * vec4(vertlist[triTableValue(cubeindex, i+2)], 1.0);
+            EmitVertex();
+
+            // vec3 color = vec3(triTableValue(cubeindex, i), triTableValue(cubeindex, i+1), triTableValue(cubeindex, i+2)) / 16.0;
+            // frag.position = color;
+            // gl_Position = MVP * vec4(vertices[0].position + vec3(0, 0, 0), 1.0);
+            // EmitVertex();
+            // gl_Position = MVP * vec4(vertices[0].position + vec3(-.1, 0.1, 0), 1.0);
+            // EmitVertex();
+            // gl_Position = MVP * vec4(vertices[0].position + vec3(0.1, 0.1, 0), 1.0);
+            // EmitVertex();
+        }
+        else
+        {
+            break;
+        }
+        i = i + 3;
     }
+
+    // frag.position = vec3(distance(metaball.position, corners[0]));
+    // gl_Position = MVP * vec4(vertices[0].position + vec3(0, 0, 0), 1.0);
+    // EmitVertex();
+    // frag.position = vec3(distance(metaball.position, corners[0]));
+    // gl_Position = MVP * vec4(vertices[0].position + vec3(-.1, 0.1, 0), 1.0);
+    // EmitVertex();
+    // frag.position = vec3(distance(metaball.position, corners[0]));
+    // gl_Position = MVP * vec4(vertices[0].position + vec3(0.1, 0.1, 0), 1.0);
+    // EmitVertex();
 
     EndPrimitive();
 

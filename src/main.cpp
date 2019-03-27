@@ -7,41 +7,45 @@
 #include "shader.h"
 
 Shader* shader;  //  Let's make the shader global at this moment, just for the sake of recompilation
+MarchingCube* marchingCube;
 PotentialField field(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1), 20);
 Metaball ball(glm::vec3(0, 0, 0), 0.5f);  //  Let's make the metaball global at this moment, just for the sake of control
 
 void processInput(GLFWwindow *window)
 {
+    float speed = 0.01f;
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
         shader->RecompileAndLink(); //  Recompile shader if "R" is pressed
     if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        ball.position.z += 0.005f;
+        field.isoLevel += speed;
+//        ball.position.z += speed;
     if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        ball.position.z -= 0.005f;
-    if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        ball.position.x += 0.005f;
-    if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        ball.position.x -= 0.005f;
-    if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        ball.position.y += 0.005f;
-    if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        ball.position.y -= 0.005f;
-    {   //  metaball out-of-bound check, nothing to do with glfw input
-        if(ball.position.x < field.minCorner.x)
-            ball.position.x = field.maxCorner.x;
-        if(ball.position.x > field.maxCorner.x)
-            ball.position.x = field.minCorner.x;
-        if(ball.position.y < field.minCorner.y)
-            ball.position.y = field.maxCorner.y;
-        if(ball.position.y > field.maxCorner.y)
-            ball.position.y = field.minCorner.y;
-        if(ball.position.z < field.minCorner.z)
-            ball.position.z = field.maxCorner.z;
-        if(ball.position.z > field.maxCorner.z)
-            ball.position.z = field.minCorner.z;
-    }
+        field.isoLevel -= speed;
+//        ball.position.z -= speed;
+//    if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+//        ball.position.x += speed;
+//    if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+//        ball.position.x -= speed;
+//    if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+//        ball.position.y += speed;
+//    if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+//        ball.position.y -= speed;
+//    {   //  metaball out-of-bound check, nothing to do with glfw input
+//        if(ball.position.x < field.minCorner.x)
+//            ball.position.x = field.maxCorner.x;
+//        if(ball.position.x > field.maxCorner.x)
+//            ball.position.x = field.minCorner.x;
+//        if(ball.position.y < field.minCorner.y)
+//            ball.position.y = field.maxCorner.y;
+//        if(ball.position.y > field.maxCorner.y)
+//            ball.position.y = field.minCorner.y;
+//        if(ball.position.z < field.minCorner.z)
+//            ball.position.z = field.maxCorner.z;
+//        if(ball.position.z > field.maxCorner.z)
+//            ball.position.z = field.minCorner.z;
+//    }
 }
 
 int main()
@@ -74,6 +78,7 @@ int main()
     
     // Shader initialization (should be created in run-time, because glad needs to be init first)
     shader = new Shader();
+    marchingCube = new MarchingCube();
 
     // Vertex buffer object, gives instant access to vertices in the GPU
     // GenBuffers yields a unique ID for the newly created buffer
@@ -125,7 +130,15 @@ int main()
     unsigned int MBpos = glGetUniformLocation(shader->Program, "metaball.position");
     unsigned int MBrad = glGetUniformLocation(shader->Program, "metaball.radius");
     unsigned int VHL = glGetUniformLocation(shader->Program, "voxelHalfLength");
+    unsigned int IL = glGetUniformLocation(shader->Program, "isolevel");
+    unsigned int TTex = glGetUniformLocation(shader->Program, "triTexture");
     
+    std::cout << IL << '\t' << TTex << std::endl;
+    
+//    glUniform1i(ETex, 1);
+    glUniform1i(TTex, 1);
+    
+    glEnable(GL_DEPTH_TEST);
     float startTime = glfwGetTime();
     float elapsedTime = 0;
     // render loop
@@ -140,7 +153,7 @@ int main()
        
             // rendering commands here
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             // Render the triangle
             glUseProgram(shader->Program);
@@ -150,6 +163,7 @@ int main()
             
             glUniform3f(MBpos, ball.position.x, ball.position.y, ball.position.z);
             glUniform1f(MBrad, ball.radius);
+            glUniform1f(IL, field.isoLevel);
             glUniform1f(VHL, field.voxelHalfLength);
 
             glDrawArrays(GL_POINTS, 0, field.voxelCount);
