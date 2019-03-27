@@ -131,21 +131,32 @@ int main()
     unsigned int MBrad = glGetUniformLocation(shader->Program, "metaball.radius");
     unsigned int VHL = glGetUniformLocation(shader->Program, "voxelHalfLength");
     unsigned int IL = glGetUniformLocation(shader->Program, "isolevel");
-    unsigned int TTex = glGetUniformLocation(shader->Program, "triTexture");
+    unsigned int triTex = glGetUniformLocation(shader->Program, "triTexture");
     
-    std::cout << IL << '\t' << TTex << std::endl;
-    
-//    glUniform1i(ETex, 1);
-    glUniform1i(TTex, 1);
+    glUniform1i(triTex, 0);
     
     glEnable(GL_DEPTH_TEST);
-    float startTime = glfwGetTime();
-    float elapsedTime = 0;
+    float lastTime = glfwGetTime();
+    float elapsedTime = 0.0f;
+    float timer = 0.0f;
+    int frame = 0;
     // render loop
     while(!glfwWindowShouldClose(window))
     {
-        float deltaTime = glfwGetTime() - startTime;
+        float deltaTime = glfwGetTime() - lastTime;
+        lastTime = glfwGetTime();
         elapsedTime += deltaTime;
+        timer += deltaTime;
+        
+        //  One second has passed, log the fps on window title
+        if(timer >= 1.0f)
+        {
+            std::string newTitle = "FPS: " + std::to_string(frame);
+            glfwSetWindowTitle(window, newTitle.c_str());
+            timer -= 1.0f;
+            frame = 0;
+        }
+        
         if(elapsedTime >= 0.013f)      //  Render at 60 fps
         {
             // input
@@ -173,6 +184,7 @@ int main()
             glfwSwapBuffers(window);
             
             elapsedTime -= 0.013f;
+            frame++;
         }
     }
 

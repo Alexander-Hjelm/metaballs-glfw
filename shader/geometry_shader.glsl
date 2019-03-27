@@ -26,11 +26,6 @@ uniform mat4 MVP;
 // uniform isampler2D edgeTexture;
 uniform isampler2D triTexture;
 
-//Get edge table value
-// int edgeTableValue(int i){
-//     return texelFetch(edgeTexture, ivec2(0, i), 0).r;
-// }
-
 //Get triangle table value
 int triTableValue(int i, int j){
     return texelFetch(triTexture, ivec2(j, i), 0).r;
@@ -53,20 +48,6 @@ void main() {
     corners[5] = vertices[0].position + vec3(+voxelHalfLength, +voxelHalfLength, +voxelHalfLength);
     corners[6] = vertices[0].position + vec3(+voxelHalfLength, +voxelHalfLength, -voxelHalfLength);
     corners[7] = vertices[0].position + vec3(-voxelHalfLength, +voxelHalfLength, -voxelHalfLength);
-
-    // vec3 edges[12];
-    // edges[0]  = vertices[0].position + vec3(0, -voxelHalfLength, +voxelHalfLength);
-    // edges[1]  = vertices[0].position + vec3(+voxelHalfLength, -voxelHalfLength, 0);
-    // edges[2]  = vertices[0].position + vec3(0, -voxelHalfLength, -voxelHalfLength);
-    // edges[3]  = vertices[0].position + vec3(-voxelHalfLength, -voxelHalfLength, 0);
-    // edges[4]  = vertices[0].position + vec3(0, +voxelHalfLength, +voxelHalfLength);
-    // edges[5]  = vertices[0].position + vec3(+voxelHalfLength, +voxelHalfLength, 0);
-    // edges[6]  = vertices[0].position + vec3(0, +voxelHalfLength, -voxelHalfLength);
-    // edges[7]  = vertices[0].position + vec3(-voxelHalfLength, +voxelHalfLength, 0);
-    // edges[8]  = vertices[0].position + vec3(-voxelHalfLength, 0, +voxelHalfLength);
-    // edges[9]  = vertices[0].position + vec3(+voxelHalfLength, +voxelHalfLength, 0);
-    // edges[10] = vertices[0].position + vec3(+voxelHalfLength, 0, -voxelHalfLength);
-    // edges[11] = vertices[0].position + vec3(-voxelHalfLength, -voxelHalfLength, 0);
 
     float values[8];
     for(int i = 0; i < 8; ++i)
@@ -107,43 +88,16 @@ void main() {
 
     // push vertex to primitive
     int i = 0;
-    frag.position = vec3(1, 1, 1);
-    while (true)
+    frag.position = vec3(distance(metaball.position, corners[0]));
+    for(int i = 0; triTableValue(cubeindex, i) != -1; i += 3)
     {
-        if(triTableValue(cubeindex, i) != -1)
-        {
-            gl_Position = MVP * vec4(vertlist[triTableValue(cubeindex, i)], 1.0);
-            EmitVertex();
-            gl_Position = MVP * vec4(vertlist[triTableValue(cubeindex, i+1)], 1.0);
-            EmitVertex();
-            gl_Position = MVP * vec4(vertlist[triTableValue(cubeindex, i+2)], 1.0);
-            EmitVertex();
-
-            // vec3 color = vec3(triTableValue(cubeindex, i), triTableValue(cubeindex, i+1), triTableValue(cubeindex, i+2)) / 16.0;
-            // frag.position = color;
-            // gl_Position = MVP * vec4(vertices[0].position + vec3(0, 0, 0), 1.0);
-            // EmitVertex();
-            // gl_Position = MVP * vec4(vertices[0].position + vec3(-.1, 0.1, 0), 1.0);
-            // EmitVertex();
-            // gl_Position = MVP * vec4(vertices[0].position + vec3(0.1, 0.1, 0), 1.0);
-            // EmitVertex();
-        }
-        else
-        {
-            break;
-        }
-        i = i + 3;
+        gl_Position = MVP * vec4(vertlist[triTableValue(cubeindex, i)], 1.0);
+        EmitVertex();
+        gl_Position = MVP * vec4(vertlist[triTableValue(cubeindex, i+1)], 1.0);
+        EmitVertex();
+        gl_Position = MVP * vec4(vertlist[triTableValue(cubeindex, i+2)], 1.0);
+        EmitVertex();
     }
-
-    // frag.position = vec3(distance(metaball.position, corners[0]));
-    // gl_Position = MVP * vec4(vertices[0].position + vec3(0, 0, 0), 1.0);
-    // EmitVertex();
-    // frag.position = vec3(distance(metaball.position, corners[0]));
-    // gl_Position = MVP * vec4(vertices[0].position + vec3(-.1, 0.1, 0), 1.0);
-    // EmitVertex();
-    // frag.position = vec3(distance(metaball.position, corners[0]));
-    // gl_Position = MVP * vec4(vertices[0].position + vec3(0.1, 0.1, 0), 1.0);
-    // EmitVertex();
 
     EndPrimitive();
 
