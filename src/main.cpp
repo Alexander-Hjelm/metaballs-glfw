@@ -126,17 +126,37 @@ int main()
     //unsigned int MBrad = glGetUniformLocation(shader->Program, "metaball.radius");
     unsigned int VHL = glGetUniformLocation(shader->Program, "voxelHalfLength");
     
-    int metaballCount = 1;
+    int metaballCount = 2;
 
     unsigned int metaballPosTexture;
 
     float textureArray[4][metaballCount] = {
         0.5f, 0.5f, 0.0f, 0.4f,
+        0.5f, 0.5f, 1.0f, 0.4f,
+        //1.0f, 1.0f, 1.0f, 0.3f
     };
+
 
     glGenTextures(1, &metaballPosTexture);
     glBindTexture(GL_TEXTURE_2D, metaballPosTexture);
+
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    // Filter mode. Set to nearest point for now.
+    // Can be GL_LINEAR
+    // Even if no filtering is used, one must be specified
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    
+    //loat a = texelFetch(metaballPosTexture, ivec2(0, i), 0).a;
+
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, metaballCount, 0, GL_RGBA, GL_FLOAT, &textureArray);
+
+    //unsigned int textureLocation = glGetUniformLocation(shader->Program, "metaballPosTexture");
+    //glUniform1i(textureLocation, 0);
     
     float startTime = glfwGetTime();
     float elapsedTime = 0;

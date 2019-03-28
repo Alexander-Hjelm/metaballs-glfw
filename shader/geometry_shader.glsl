@@ -31,9 +31,9 @@ void main() {
     for(int i = 0; i < 2; ++i)
     {
         // voxel is not inside the sphere
-        vec3 rgb = texelFetch(metaballPosTexture, ivec2(0, i), 0).rgb;
-        float a = texelFetch(metaballPosTexture, ivec2(0, i), 0).a;
-        if(distance(rgb, vertices[0].position) < a*0.5)
+        vec4 rgba = texelFetch(metaballPosTexture, ivec2(0, i), 0).rgba;
+        //frag.position = rgb;
+        if(distance(rgba.rgb, vertices[0].position) < rgba.a)
         {
             outside = false;
         }
