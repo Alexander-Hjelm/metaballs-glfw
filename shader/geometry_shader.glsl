@@ -18,16 +18,28 @@ struct Metaball
     vec3 position;
     float radius;
 };
-uniform Metaball metaball;
+//uniform Metaball metaball;
 uniform float voxelHalfLength;
 uniform mat4 MVP;
+uniform sampler2D metaballPosTexture; 
 
 const int INDICES[14] = int[14]( 4, 3, 7, 8, 5, 3, 1, 4, 2, 7, 6, 5, 2, 1 );    //  minimalistic way to define a unit cube
 
 void main() {
 
-    // voxel is not inside the sphere
-    if(distance(metaball.position, vertices[0].position) > metaball.radius)
+    bool outside = true;
+    for(int i = 0; i < 2; ++i)
+    {
+        // voxel is not inside the sphere
+        vec3 rgb = texelFetch(metaballPosTexture, ivec2(0, i), 0).rgb;
+        float a = texelFetch(metaballPosTexture, ivec2(0, i), 0).a;
+        if(distance(rgb, vertices[0].position) < a*0.5)
+        {
+            outside = false;
+        }
+    }
+
+    if(outside)
     {
         EndPrimitive();
         return;

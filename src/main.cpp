@@ -7,7 +7,7 @@
 #include "shader.h"
 
 Shader* shader;  //  Let's make the shader global at this moment, just for the sake of recompilation
-PotentialField field(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1), 20);
+PotentialField field(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), 20);
 Metaball ball(glm::vec3(0, 0, 0), 0.5f);  //  Let's make the metaball global at this moment, just for the sake of control
 
 void processInput(GLFWwindow *window)
@@ -122,9 +122,21 @@ int main()
     // Get an id for the mvp matrixmvp matrix
     unsigned int MVP_ID = glGetUniformLocation(shader->Program, "MVP");
     // Get an id for the metaball configuration
-    unsigned int MBpos = glGetUniformLocation(shader->Program, "metaball.position");
-    unsigned int MBrad = glGetUniformLocation(shader->Program, "metaball.radius");
+    //unsigned int MBpos = glGetUniformLocation(shader->Program, "metaball.position");
+    //unsigned int MBrad = glGetUniformLocation(shader->Program, "metaball.radius");
     unsigned int VHL = glGetUniformLocation(shader->Program, "voxelHalfLength");
+    
+    int metaballCount = 1;
+
+    unsigned int metaballPosTexture;
+
+    float textureArray[4][metaballCount] = {
+        0.5f, 0.5f, 0.0f, 0.4f,
+    };
+
+    glGenTextures(1, &metaballPosTexture);
+    glBindTexture(GL_TEXTURE_2D, metaballPosTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, metaballCount, 0, GL_RGBA, GL_FLOAT, &textureArray);
     
     float startTime = glfwGetTime();
     float elapsedTime = 0;
@@ -148,9 +160,11 @@ int main()
             // Link mvp matrix with the currently boud GLSL shader
             glUniformMatrix4fv(MVP_ID, 1, false, &mvpMatrix[0][0]);
             
-            glUniform3f(MBpos, ball.position.x, ball.position.y, ball.position.z);
-            glUniform1f(MBrad, ball.radius);
+            //glUniform3f(MBpos, ball.position.x, ball.position.y, ball.position.z);
+            //glUniform1f(MBrad, ball.radius);
             glUniform1f(VHL, field.voxelHalfLength);
+            
+
 
             glDrawArrays(GL_POINTS, 0, field.voxelCount);
             
