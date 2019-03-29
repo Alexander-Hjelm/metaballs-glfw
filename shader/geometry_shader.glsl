@@ -13,12 +13,6 @@ out fData
     vec3 position;
 } frag;
 
-struct Metaball
-{
-    vec3 position;
-    float radius;
-};
-//uniform Metaball metaball;
 uniform float voxelHalfLength;
 uniform int metaballCount;
 uniform mat4 MVP;

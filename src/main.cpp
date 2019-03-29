@@ -4,9 +4,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include "metaball.h"
+#include "potentialfield.h"
 #include "shader.h"
 
-unsigned int metaballCount = 2;
+unsigned int metaballCount = 8;
 
 Shader* shader;  //  Let's make the shader global at this moment, just for the sake of recompilation
 PotentialField field(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), 20);
@@ -133,9 +134,14 @@ int main()
     unsigned int metaballPosTexture;
 
     float textureArray[4][metaballCount] = {
-        0.5f, 0.5f, 0.0f, 0.4f,
-        0.5f, 0.5f, 1.0f, 0.4f,
-        //1.0f, 1.0f, 1.0f, 0.3f
+        0.0f, 0.0f, 0.0f, 0.4f,
+        0.0f, 0.0f, 1.0f, 0.4f,
+        0.0f, 1.0f, 0.0f, 0.4f,
+        0.0f, 1.0f, 1.0f, 0.4f,
+        1.0f, 0.0f, 0.0f, 0.4f,
+        1.0f, 0.0f, 1.0f, 0.4f,
+        1.0f, 1.0f, 0.0f, 0.4f,
+        1.0f, 1.0f, 1.0f, 0.4f
     };
 
 
@@ -152,6 +158,7 @@ int main()
 
     float startTime = glfwGetTime();
     float elapsedTime = 0;
+    
     // render loop
     while(!glfwWindowShouldClose(window))
     {
