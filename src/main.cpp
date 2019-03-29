@@ -134,8 +134,8 @@ int main()
     unsigned int metaballPosTexture;
 
     float textureArray[4][metaballCount] = {
-        1.0f, 1.0f, 0.0f, 0.4f,
-        0.0f, 0.0f, 1.0f, 0.4f,
+        1.0f, 1.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f, 1.0f,
     };
 
 
