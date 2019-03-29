@@ -20,17 +20,27 @@ uniform sampler2D metaballPosTexture;
 
 const int INDICES[14] = int[14]( 4, 3, 7, 8, 5, 3, 1, 4, 2, 7, 6, 5, 2, 1 );    //  minimalistic way to define a unit cube
 
+const float ISOSURFACE_INDEX = 2.5;
+
+float potentialFieldModel(vec3 srcPos, vec3 measurePos) {
+    vec3 r = measurePos - srcPos;
+    
+    return 1/(r.x*r.x + r.y*r.y + r.z*r.z);
+}
+
 void main() {
 
+    float influence = 0.0f;
     bool outside = true;
 
     for(int i = 0; i < metaballCount; ++i)
     {
-        // voxel is not inside the sphere
         vec4 rgba = texelFetch(metaballPosTexture, ivec2(0, i), 0).rgba;
-        if(distance(rgba.rgb, vertices[0].position) < rgba.a)
+        influence += potentialFieldModel(rgba.rgb, vertices[0].position);
+        if(influence >= ISOSURFACE_INDEX)
         {
             outside = false;
+            break;
         }
     }
 
