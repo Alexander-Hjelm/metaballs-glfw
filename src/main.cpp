@@ -6,9 +6,11 @@
 #include "metaball.h"
 #include "shader.h"
 
+unsigned int metaballCount = 2;
+
 Shader* shader;  //  Let's make the shader global at this moment, just for the sake of recompilation
 PotentialField field(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), 20);
-Metaball ball(glm::vec3(0, 0, 0), 0.5f);  //  Let's make the metaball global at this moment, just for the sake of control
+//Metaball ball(glm::vec3(0, 0, 0), 0.5f);  //  Let's make the metaball global at this moment, just for the sake of control
 
 void processInput(GLFWwindow *window)
 {
@@ -16,32 +18,32 @@ void processInput(GLFWwindow *window)
         glfwSetWindowShouldClose(window, true);
     if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
         shader->RecompileAndLink(); //  Recompile shader if "R" is pressed
-    if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        ball.position.z += 0.005f;
-    if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        ball.position.z -= 0.005f;
-    if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        ball.position.x += 0.005f;
-    if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        ball.position.x -= 0.005f;
-    if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        ball.position.y += 0.005f;
-    if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        ball.position.y -= 0.005f;
-    {   //  metaball out-of-bound check, nothing to do with glfw input
-        if(ball.position.x < field.minCorner.x)
-            ball.position.x = field.maxCorner.x;
-        if(ball.position.x > field.maxCorner.x)
-            ball.position.x = field.minCorner.x;
-        if(ball.position.y < field.minCorner.y)
-            ball.position.y = field.maxCorner.y;
-        if(ball.position.y > field.maxCorner.y)
-            ball.position.y = field.minCorner.y;
-        if(ball.position.z < field.minCorner.z)
-            ball.position.z = field.maxCorner.z;
-        if(ball.position.z > field.maxCorner.z)
-            ball.position.z = field.minCorner.z;
-    }
+    //if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        //ball.position.z += 0.005f;
+    //if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        //ball.position.z -= 0.005f;
+    //if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        //ball.position.x += 0.005f;
+    //if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        //ball.position.x -= 0.005f;
+    //if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        //ball.position.y += 0.005f;
+    //if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        //ball.position.y -= 0.005f;
+    //{     metaball out-of-bound check, nothing to do with glfw input
+        //if(ball.position.x < field.minCorner.x)
+            //ball.position.x = field.maxCorner.x;
+        //if(ball.position.x > field.maxCorner.x)
+            //ball.position.x = field.minCorner.x;
+        //if(ball.position.y < field.minCorner.y)
+            //ball.position.y = field.maxCorner.y;
+        //if(ball.position.y > field.maxCorner.y)
+            //ball.position.y = field.minCorner.y;
+        //if(ball.position.z < field.minCorner.z)
+            //ball.position.z = field.maxCorner.z;
+        //if(ball.position.z > field.maxCorner.z)
+            //ball.position.z = field.minCorner.z;
+    //}
 }
 
 int main()
@@ -121,13 +123,13 @@ int main()
 
     // Get an id for the mvp matrixmvp matrix
     unsigned int MVP_ID = glGetUniformLocation(shader->Program, "MVP");
-    // Get an id for the metaball configuration
-    //unsigned int MBpos = glGetUniformLocation(shader->Program, "metaball.position");
-    //unsigned int MBrad = glGetUniformLocation(shader->Program, "metaball.radius");
-    unsigned int VHL = glGetUniformLocation(shader->Program, "voxelHalfLength");
-    
-    int metaballCount = 2;
 
+    // Get an id for the metaball configuration
+    unsigned int VHL = glGetUniformLocation(shader->Program, "voxelHalfLength");
+
+    // Get an id for the metaball count
+    unsigned int MBC = glGetUniformLocation(shader->Program, "metaballCount");
+    
     unsigned int metaballPosTexture;
 
     float textureArray[4][metaballCount] = {
@@ -140,24 +142,14 @@ int main()
     glGenTextures(1, &metaballPosTexture);
     glBindTexture(GL_TEXTURE_2D, metaballPosTexture);
 
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
     // Filter mode. Set to nearest point for now.
     // Can be GL_LINEAR
     // Even if no filtering is used, one must be specified
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     
-    //loat a = texelFetch(metaballPosTexture, ivec2(0, i), 0).a;
-
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, metaballCount, 0, GL_RGBA, GL_FLOAT, &textureArray);
 
-    //unsigned int textureLocation = glGetUniformLocation(shader->Program, "metaballPosTexture");
-    //glUniform1i(textureLocation, 0);
-    
     float startTime = glfwGetTime();
     float elapsedTime = 0;
     // render loop
@@ -180,12 +172,10 @@ int main()
             // Link mvp matrix with the currently boud GLSL shader
             glUniformMatrix4fv(MVP_ID, 1, false, &mvpMatrix[0][0]);
             
-            //glUniform3f(MBpos, ball.position.x, ball.position.y, ball.position.z);
-            //glUniform1f(MBrad, ball.radius);
+            // Link metaball properties and count
             glUniform1f(VHL, field.voxelHalfLength);
+            glUniform1i(MBC, metaballCount);
             
-
-
             glDrawArrays(GL_POINTS, 0, field.voxelCount);
             
             // check and call events and swap the buffers
