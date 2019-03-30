@@ -15,7 +15,6 @@ out fData
 
 uniform float voxelHalfLength;
 uniform float isolevel;
-uniform int metaballCount;
 uniform mat4 MVP;
 
 //  Textures
@@ -29,8 +28,7 @@ int triTableValue(int i, int j){
 
 //Compute interpolated vertex along an edge
 vec3 VertexInterp(float isolevel, vec3 v0, vec3 v1,float l0, float l1){
-    // return mix(v0, v1, (isolevel-l0)/(l1-l0)
-    return mix(v0, v1, 0.5);
+    return mix(v0, v1, (isolevel-l0)/(l1-l0));
 }
 
 void main() {
@@ -50,11 +48,10 @@ void main() {
     float values[8];
     for(int i = 0; i < 8; ++i)
     {
-        for(int j = 0; j < metaballCount; ++j)
+        for(int j = 0; j < METABALL_COUNT; ++j)
         {
-            vec3 position = texelFetch(metaballPosTexture, ivec2(0, j), 0).rgb;
-            float radius = texelFetch(metaballPosTexture, ivec2(0, j), 0).a;
-            values[i] += 1.0f / distance(position, corners[i]);
+            vec4 pixel = texelFetch(metaballPosTexture, ivec2(0, j), 0);
+            values[i] += 1.0f / distance(pixel.rgb, corners[i]);
         }
     }
 
@@ -103,14 +100,7 @@ void main() {
         EmitVertex();
         gl_Position = MVP * vec4(pt3, 1.0);
         EmitVertex();
-
-        // gl_Position = MVP * vec4(pt1 + vec3(0, 0, 0), 1.0);
-        // EmitVertex();
-        // gl_Position = MVP * vec4(pt2 + vec3(-.1, .1, 0), 1.0);
-        // EmitVertex();
-        // gl_Position = MVP * vec4(pt3 + vec3(.1, .1, 0), 1.0);
-        // EmitVertex();
-
         EndPrimitive();
     }
+    // EndPrimitive();
 }

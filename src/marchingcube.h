@@ -1,5 +1,6 @@
 #pragma once
 
+//  The triangle look-up table for marching cube algorithm
 int triTable[256][16] = {
     {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
     {0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
@@ -263,6 +264,9 @@ struct MarchingCube
 public:
     unsigned int triTexture;
 public:
+    /**
+     *  Constructor
+     */
     MarchingCube()
     {
         glActiveTexture(GL_TEXTURE1);
@@ -273,9 +277,11 @@ public:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_R16I, 16, 256, 0, GL_RED_INTEGER, GL_INT, &triTable);
-        
-        std::cout << glGetError() << std::endl;
     }
+    
+    /**
+     *  Destructor
+     */
     ~MarchingCube()
     {
     }
