@@ -33,7 +33,7 @@ int triTableValue(int i, int j){
 
 //Compute interpolated vertex along an edge
 vec3 VertexInterp(float isolevel, vec3 v0, vec3 v1,float l0, float l1){
-    return mix(v0, v1, 0.5);
+    return mix(v0, v1, (isolevel-l0)/(l1-l0));
 }
 
 void main() {
