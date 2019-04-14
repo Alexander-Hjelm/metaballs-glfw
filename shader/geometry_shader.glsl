@@ -18,10 +18,14 @@ struct Metaball
     vec3 position;
     float radius;
 };
+
 uniform Metaball metaball;
 uniform float voxelHalfLength;
 uniform float isolevel;
 uniform mat4 MVP;
+
+//Metaball positions
+uniform sampler2D metaballPosTexture;
 
 // uniform isampler2D edgeTexture;
 uniform isampler2D triTexture;
@@ -50,9 +54,15 @@ void main() {
     corners[7] = vertices[0].position + vec3(-voxelHalfLength, +voxelHalfLength, -voxelHalfLength);
 
     float values[8];
-    for(int i = 0; i < 8; ++i)
+    for(int j = 0; j < 1; ++j)
     {
-        values[i] = distance(metaball.position, corners[i]);
+        vec4 rgba = texelFetch(triTexture, ivec2(1, 1), 0).rgba;
+        for(int i = 0; i < 8; ++i)
+        {
+            //values[j] = min(values[j], distance(rgb, corners[j]));
+            values[i] = distance(metaball.position + vec3(rgba.b, 0.0f, 0.0f), corners[i]);
+            //values[i] = distance(rgba.rgb, corners[i]);
+        }
     }
 
     // find the suitable look-up cube
@@ -86,8 +96,11 @@ void main() {
     vertlist[10] = VertexInterp(isolevel,corners[2],corners[6],values[2],values[6]);
     vertlist[11] = VertexInterp(isolevel,corners[3],corners[7],values[3],values[7]);
 
+    vec4 rgba = texelFetch(metaballPosTexture, ivec2(0, 0), 0).rgba;
+
     // push vertex to primitive
     int i = 0;
+    //frag.position = vec3(distance(rgba.rgb, corners[0]));
     frag.position = vec3(distance(metaball.position, corners[0]));
     for(int i = 0; triTableValue(cubeindex, i) != -1; i += 3)
     {

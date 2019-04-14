@@ -129,13 +129,42 @@ int main()
     // Get an id for the mvp matrixmvp matrix
     unsigned int MVP_ID = glGetUniformLocation(shader->Program, "MVP");
     // Get an id for the metaball configuration
-    unsigned int MBpos = glGetUniformLocation(shader->Program, "metaball.position");
-    unsigned int MBrad = glGetUniformLocation(shader->Program, "metaball.radius");
+    //unsigned int MBpos = glGetUniformLocation(shader->Program, "metaball.position");
+    //unsigned int MBrad = glGetUniformLocation(shader->Program, "metaball.radius");
     unsigned int VHL = glGetUniformLocation(shader->Program, "voxelHalfLength");
     unsigned int IL = glGetUniformLocation(shader->Program, "isolevel");
     unsigned int triTex = glGetUniformLocation(shader->Program, "triTexture");
+    unsigned int mbPosTex = glGetUniformLocation(shader->Program, "metaballPosTexture");
     
     glUniform1i(triTex, 0);
+
+    int metaballCount = 2;
+
+    //unsigned int metaballPosTexture;
+
+    float textureArray[4][metaballCount] = {
+        1.0f, 1.0f, 1.0f, 1.0f,
+        0.0f, 1.0f, 1.0f, 1.0f,
+    };
+
+    glGenTextures(1, &mbPosTex);
+
+    //Specify texture slot to be 1. Seems like triTex has already hogged slot 0
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, mbPosTex);
+    std::cout << glGetError() << std::endl;
+
+    // Filter mode. Set to nearest point for now.
+    // Can be GL_LINEAR
+    // Even if no filtering is used, one must be specified
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, metaballCount, 0, GL_RGBA, GL_FLOAT, &textureArray);
+    //glBindTexture(GL_TEXTURE_2D, 0);
     
     glEnable(GL_DEPTH_TEST);
     float lastTime = glfwGetTime();
@@ -143,6 +172,7 @@ int main()
     float timer = 0.0f;
     int frame = 0;
     // render loop
+    std::cout << "GOT HERE 1" << std::endl;
     while(!glfwWindowShouldClose(window))
     {
         float deltaTime = glfwGetTime() - lastTime;
@@ -174,8 +204,8 @@ int main()
             // Link mvp matrix with the currently boud GLSL shader
             glUniformMatrix4fv(MVP_ID, 1, false, &mvpMatrix[0][0]);
             
-            glUniform3f(MBpos, ball.position.x, ball.position.y, ball.position.z);
-            glUniform1f(MBrad, ball.radius);
+            //glUniform3f(MBpos, ball.position.x, ball.position.y, ball.position.z);
+            //glUniform1f(MBrad, ball.radius);
             glUniform1f(IL, field.isoLevel);
             glUniform1f(VHL, field.voxelHalfLength);
 
@@ -187,6 +217,7 @@ int main()
             
             elapsedTime -= 0.013f;
             frame++;
+            std::cout << "GOT HERE 2" << std::endl;
         }
     }
 
