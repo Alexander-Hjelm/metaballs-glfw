@@ -13,13 +13,6 @@ out fData
     vec3 position;
 } frag;
 
-struct Metaball
-{
-    vec3 position;
-    float radius;
-};
-
-uniform Metaball metaball;
 uniform float voxelHalfLength;
 uniform float isolevel;
 uniform mat4 MVP;
@@ -59,9 +52,7 @@ void main() {
         vec4 rgba = texelFetch(triTexture, ivec2(1, 1), 0).rgba;
         for(int i = 0; i < 8; ++i)
         {
-            //values[j] = min(values[j], distance(rgb, corners[j]));
-            values[i] = distance(metaball.position + vec3(rgba.b, 0.0f, 0.0f), corners[i]);
-            //values[i] = distance(rgba.rgb, corners[i]);
+            values[i] = distance(vec3(rgba.r,rgba.b,rgba.g), corners[i]);
         }
     }
 
@@ -100,8 +91,7 @@ void main() {
 
     // push vertex to primitive
     int i = 0;
-    //frag.position = vec3(distance(rgba.rgb, corners[0]));
-    frag.position = vec3(distance(metaball.position, corners[0]));
+    frag.position = vec3(distance(rgba.rgb, corners[0]));
     for(int i = 0; triTableValue(cubeindex, i) != -1; i += 3)
     {
         gl_Position = MVP * vec4(vertlist[triTableValue(cubeindex, i)], 1.0);

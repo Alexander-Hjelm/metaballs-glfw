@@ -135,6 +135,8 @@ int main()
     unsigned int IL = glGetUniformLocation(shader->Program, "isolevel");
     unsigned int triTex = glGetUniformLocation(shader->Program, "triTexture");
     unsigned int mbPosTex = glGetUniformLocation(shader->Program, "metaballPosTexture");
+
+    unsigned int mbPosTexID;
     
     glUniform1i(triTex, 0);
 
@@ -143,17 +145,21 @@ int main()
     //unsigned int metaballPosTexture;
 
     float textureArray[4][metaballCount] = {
-        1.0f, 1.0f, 1.0f, 1.0f,
-        0.0f, 1.0f, 1.0f, 1.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
     };
 
-    glGenTextures(1, &mbPosTex);
+    glGenTextures(1, &mbPosTexID);
 
     //Specify texture slot to be 1. Seems like triTex has already hogged slot 0
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, mbPosTex);
+    glBindTexture(GL_TEXTURE_2D, mbPosTexID);
     std::cout << glGetError() << std::endl;
 
+    std::cout << MVP_ID << std::endl;
+    std::cout << VHL << std::endl;
+    std::cout << IL << std::endl;
+    std::cout << triTex << std::endl;
+    std::cout << mbPosTex << std::endl;
     // Filter mode. Set to nearest point for now.
     // Can be GL_LINEAR
     // Even if no filtering is used, one must be specified
@@ -164,6 +170,7 @@ int main()
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, metaballCount, 0, GL_RGBA, GL_FLOAT, &textureArray);
+    glUniform1i(mbPosTex, 1);
     //glBindTexture(GL_TEXTURE_2D, 0);
     
     glEnable(GL_DEPTH_TEST);
@@ -172,7 +179,7 @@ int main()
     float timer = 0.0f;
     int frame = 0;
     // render loop
-    std::cout << "GOT HERE 1" << std::endl;
+    //std::cout << "GOT HERE 1" << std::endl;
     while(!glfwWindowShouldClose(window))
     {
         float deltaTime = glfwGetTime() - lastTime;
@@ -217,7 +224,7 @@ int main()
             
             elapsedTime -= 0.013f;
             frame++;
-            std::cout << "GOT HERE 2" << std::endl;
+            //std::cout << "GOT HERE 2" << std::endl;
         }
     }
 
