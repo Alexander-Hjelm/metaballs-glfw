@@ -140,7 +140,7 @@ int main()
     
     glUniform1i(triTex, 0);
 
-    int metaballCount = 2;
+    const int metaballCount = 1;
 
     //unsigned int metaballPosTexture;
 
