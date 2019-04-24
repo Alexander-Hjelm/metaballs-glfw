@@ -10,7 +10,7 @@ in vData
 
 out fData
 {
-    vec3 position;
+    vec3 normal;
 } frag;
 
 uniform float voxelHalfLength;
@@ -46,15 +46,27 @@ void main() {
     corners[6] = vertices[0].position + vec3(+voxelHalfLength, +voxelHalfLength, -voxelHalfLength);
     corners[7] = vertices[0].position + vec3(-voxelHalfLength, +voxelHalfLength, -voxelHalfLength);
 
+    // float values[8];
+    // for(int j = 0; j < 1; ++j)
+    // {
+    //     for(int i = 0; i < 8; ++i)
+    //     {
+    //         vec4 rgba = texelFetch(triTexture, ivec2(0, 0), 0);
+    //         values[i] = distance(rgba.rgb, corners[i]);
+    //     }
+    // }
+
+    //  calculate iso value for every corners
     float values[8];
-    for(int j = 0; j < 1; ++j)
+    for(int i = 0; i < 8; ++i)
     {
-        vec4 rgba = texelFetch(triTexture, ivec2(1, 1), 0).rgba;
-        for(int i = 0; i < 8; ++i)
+        for(int j = 0; j < 2; ++j)
         {
-            values[i] = distance(vec3(rgba.r,rgba.b,rgba.g), corners[i]);
+            vec4 pixel = texelFetch(metaballPosTexture, ivec2(0, j), 0);
+            values[i] += 1.0f / distance(pixel.rgb, corners[i]);
         }
     }
+
 
     // find the suitable look-up cube
     int cubeindex = 0;
@@ -87,19 +99,21 @@ void main() {
     vertlist[10] = VertexInterp(isolevel,corners[2],corners[6],values[2],values[6]);
     vertlist[11] = VertexInterp(isolevel,corners[3],corners[7],values[3],values[7]);
 
-    vec4 rgba = texelFetch(metaballPosTexture, ivec2(0, 0), 0).rgba;
-
     // push vertex to primitive
-    int i = 0;
-    frag.position = vec3(distance(rgba.rgb, corners[0]));
     for(int i = 0; triTableValue(cubeindex, i) != -1; i += 3)
     {
+        vec3 pt1 = vertlist[triTableValue(cubeindex, i)];
+        vec3 pt2 = vertlist[triTableValue(cubeindex, i+1)];
+        vec3 pt3 = vertlist[triTableValue(cubeindex, i+2)];
+
+        frag.normal = normalize(cross(pt2-pt1, pt3-pt1));
+
         gl_Position = MVP * vec4(vertlist[triTableValue(cubeindex, i)], 1.0);
         EmitVertex();
         gl_Position = MVP * vec4(vertlist[triTableValue(cubeindex, i+1)], 1.0);
         EmitVertex();
         gl_Position = MVP * vec4(vertlist[triTableValue(cubeindex, i+2)], 1.0);
-        EmitVertex();
+        EmitVertex();       
     }
 
     EndPrimitive();

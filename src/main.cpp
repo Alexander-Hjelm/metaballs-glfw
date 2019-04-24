@@ -80,6 +80,7 @@ int main()
     
     // Shader initialization (should be created in run-time, because glad needs to be init first)
     shader = new Shader();
+    glUseProgram(shader->Program);
     marchingCube = new MarchingCube();
 
     // Vertex buffer object, gives instant access to vertices in the GPU
@@ -135,43 +136,36 @@ int main()
     unsigned int IL = glGetUniformLocation(shader->Program, "isolevel");
     unsigned int triTex = glGetUniformLocation(shader->Program, "triTexture");
     unsigned int mbPosTex = glGetUniformLocation(shader->Program, "metaballPosTexture");
-
-    unsigned int mbPosTexID;
-    
-    glUniform1i(triTex, 0);
-
-    int metaballCount = 2;
-
-    //unsigned int metaballPosTexture;
-
-    float textureArray[4][metaballCount] = {
-        0.0f, 0.0f, 0.0f, 1.0f
-    };
-
-    glGenTextures(1, &mbPosTexID);
-
-    //Specify texture slot to be 1. Seems like triTex has already hogged slot 0
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, mbPosTexID);
-    std::cout << glGetError() << std::endl;
-
     std::cout << MVP_ID << std::endl;
     std::cout << VHL << std::endl;
     std::cout << IL << std::endl;
     std::cout << triTex << std::endl;
     std::cout << mbPosTex << std::endl;
-    // Filter mode. Set to nearest point for now.
-    // Can be GL_LINEAR
-    // Even if no filtering is used, one must be specified
+
+    const int metaballCount = 2;
+
+    //unsigned int metaballPosTexture;
+
+    float textureArray[4][metaballCount] = {
+        1.0f, 1.0f, 0.0f, 1.0f,
+        0.0f, 1.0f, 0.0f, 1.0f
+    };
+    
+    //Specify texture slot to be 1. Seems like triTex has already hogged slot 0
+    unsigned int mbPosTexID;
+    glGenTextures(1, &mbPosTexID);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, mbPosTexID);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, metaballCount, 0, GL_RGBA, GL_FLOAT, &textureArray);
+    
+    //  Bind slot
+    glUniform1i(triTex, 0);
     glUniform1i(mbPosTex, 1);
-    //glBindTexture(GL_TEXTURE_2D, 0);
     
     glEnable(GL_DEPTH_TEST);
     float lastTime = glfwGetTime();
@@ -204,10 +198,7 @@ int main()
             // rendering commands here
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            // Render the triangle
-            glUseProgram(shader->Program);
-
+            
             // Link mvp matrix with the currently boud GLSL shader
             glUniformMatrix4fv(MVP_ID, 1, false, &mvpMatrix[0][0]);
             
