@@ -83,6 +83,9 @@ int main()
     glUseProgram(shader->Program);
     marchingCube = new MarchingCube();
 
+    // Render the triangle
+    glUseProgram(shader->Program);
+
     // Vertex buffer object, gives instant access to vertices in the GPU
     // GenBuffers yields a unique ID for the newly created buffer
     unsigned int VBO;
@@ -143,7 +146,6 @@ int main()
     std::cout << mbPosTex << std::endl;
 
     const int metaballCount = 2;
-
     //unsigned int metaballPosTexture;
 
     float textureArray[4][metaballCount] = {
@@ -198,7 +200,7 @@ int main()
             // rendering commands here
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            
+
             // Link mvp matrix with the currently boud GLSL shader
             glUniformMatrix4fv(MVP_ID, 1, false, &mvpMatrix[0][0]);
             
