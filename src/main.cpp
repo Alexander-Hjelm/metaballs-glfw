@@ -83,9 +83,6 @@ int main()
     glUseProgram(shader->Program);
     marchingCube = new MarchingCube();
 
-    // Render the triangle
-    glUseProgram(shader->Program);
-
     // Vertex buffer object, gives instant access to vertices in the GPU
     // GenBuffers yields a unique ID for the newly created buffer
     unsigned int VBO;

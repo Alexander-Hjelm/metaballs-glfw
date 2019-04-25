@@ -46,27 +46,18 @@ void main() {
     corners[6] = vertices[0].position + vec3(+voxelHalfLength, +voxelHalfLength, -voxelHalfLength);
     corners[7] = vertices[0].position + vec3(-voxelHalfLength, +voxelHalfLength, -voxelHalfLength);
 
-    // float values[8];
-    // for(int j = 0; j < 1; ++j)
-    // {
-    //     for(int i = 0; i < 8; ++i)
-    //     {
-    //         vec4 rgba = texelFetch(triTexture, ivec2(0, 0), 0);
-    //         values[i] = distance(rgba.rgb, corners[i]);
-    //     }
-    // }
-
     //  calculate iso value for every corners
     float values[8];
     for(int i = 0; i < 8; ++i)
     {
+        values[i] = 0;
         for(int j = 0; j < 2; ++j)
+        // j goes up to the number of metaballs. Value is hard coded for now
         {
             vec4 pixel = texelFetch(metaballPosTexture, ivec2(0, j), 0);
-            values[i] += 1.0f / distance(pixel.rgb, corners[i]);
+            values[i] += pixel.a / distance(pixel.rgb, corners[i]);
         }
     }
-
 
     // find the suitable look-up cube
     int cubeindex = 0;
