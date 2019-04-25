@@ -15,6 +15,7 @@ out fData
 
 uniform float voxelHalfLength;
 uniform float isolevel;
+uniform int metaballCount;
 uniform mat4 MVP;
 
 //Metaball positions
@@ -51,7 +52,7 @@ void main() {
     for(int i = 0; i < 8; ++i)
     {
         values[i] = 0;
-        for(int j = 0; j < 2; ++j)
+        for(int j = 0; j < metaballCount; ++j)
         // j goes up to the number of metaballs. Value is hard coded for now
         {
             vec4 pixel = texelFetch(metaballPosTexture, ivec2(0, j), 0);

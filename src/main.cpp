@@ -11,7 +11,7 @@
 Shader* shader;  //  Let's make the shader global at this moment, just for the sake of recompilation
 MarchingCube* marchingCube;
 PotentialField field(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1), 20);
-Metaball ball(glm::vec3(0, 0, 0), 0.5f);  //  Let's make the metaball global at this moment, just for the sake of control
+unsigned const int metaballCount = 3;
 
 void processInput(GLFWwindow *window)
 {
@@ -130,15 +130,17 @@ int main()
     unsigned int MVP_ID = glGetUniformLocation(shader->Program, "MVP");
     // Get an id for the metaball configuration
     unsigned int VHL = glGetUniformLocation(shader->Program, "voxelHalfLength");
+    unsigned int MBC = glGetUniformLocation(shader->Program, "metaballCount");
     unsigned int IL = glGetUniformLocation(shader->Program, "isolevel");
     unsigned int triTex = glGetUniformLocation(shader->Program, "triTexture");
     unsigned int mbPosTex = glGetUniformLocation(shader->Program, "metaballPosTexture");
 
-    const int metaballCount = 2;
+    glUniform1i(MBC, metaballCount);
 
     float textureArray[4][metaballCount] = {
         1.0f, 1.0f, 0.0f, 1.0f,
-        0.0f, 1.0f, 0.0f, 1.0f
+        0.0f, 1.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f, 1.0f
     };
     
     unsigned int mbPosTexID;

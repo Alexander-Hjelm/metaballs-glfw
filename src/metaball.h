@@ -32,7 +32,7 @@ public:
     size_t fieldSize;
     unsigned int voxelCount;
     float voxelHalfLength;
-    float isoLevel = 1.0f;
+    float isoLevel = 3.0f;
 public:
     PotentialField() :
         minCorner(glm::vec3(-1, -1, -1)),
