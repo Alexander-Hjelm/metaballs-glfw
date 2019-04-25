@@ -47,7 +47,7 @@ void main() {
     corners[6] = vertices[0].position + vec3(+voxelHalfLength, +voxelHalfLength, -voxelHalfLength);
     corners[7] = vertices[0].position + vec3(-voxelHalfLength, +voxelHalfLength, -voxelHalfLength);
 
-    //  calculate iso value for every corners
+    // calculate iso value for every corners
     float values[8];
     for(int i = 0; i < 8; ++i)
     {

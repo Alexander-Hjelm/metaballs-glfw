@@ -132,10 +132,12 @@ int main()
     unsigned int VHL = glGetUniformLocation(shader->Program, "voxelHalfLength");
     unsigned int MBC = glGetUniformLocation(shader->Program, "metaballCount");
     unsigned int IL = glGetUniformLocation(shader->Program, "isolevel");
+    unsigned int VV = glGetUniformLocation(shader->Program, "viewVector");
     unsigned int triTex = glGetUniformLocation(shader->Program, "triTexture");
     unsigned int mbPosTex = glGetUniformLocation(shader->Program, "metaballPosTexture");
 
     glUniform1i(MBC, metaballCount);
+    glUniform3f(VV, -4,-3,-3);
 
     float textureArray[4][metaballCount] = {
         1.0f, 1.0f, 0.0f, 1.0f,
