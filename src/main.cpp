@@ -97,7 +97,7 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, field.fieldSize, field.fieldData, GL_STATIC_DRAW);
 
     // Vertex array object
-    // Holds all pur buffers
+    // Holds all our buffers
     // When we want to render all triangles we can simply bind the vertex array and draw
     unsigned int VAO = 0;
     glGenVertexArrays(1, &VAO);
@@ -110,7 +110,6 @@ int main()
     // Model matrx (identity, model will be at the origin)
     glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-    //glm::mat4 viewMatrix = glm::translate(glm::mat4(), glm::vec3(-3.0f, 0.0f, 0.0f));
     glm::mat4 viewMatrix = glm::lookAt(
         glm::vec3(4,3,3),   // Camera position
         glm::vec3(0,0,0),   // LookAt position
@@ -130,36 +129,24 @@ int main()
     // Get an id for the mvp matrixmvp matrix
     unsigned int MVP_ID = glGetUniformLocation(shader->Program, "MVP");
     // Get an id for the metaball configuration
-    //unsigned int MBpos = glGetUniformLocation(shader->Program, "metaball.position");
-    //unsigned int MBrad = glGetUniformLocation(shader->Program, "metaball.radius");
     unsigned int VHL = glGetUniformLocation(shader->Program, "voxelHalfLength");
     unsigned int IL = glGetUniformLocation(shader->Program, "isolevel");
     unsigned int triTex = glGetUniformLocation(shader->Program, "triTexture");
     unsigned int mbPosTex = glGetUniformLocation(shader->Program, "metaballPosTexture");
-    std::cout << MVP_ID << std::endl;
-    std::cout << VHL << std::endl;
-    std::cout << IL << std::endl;
-    std::cout << triTex << std::endl;
-    std::cout << mbPosTex << std::endl;
 
     const int metaballCount = 2;
-    //unsigned int metaballPosTexture;
 
     float textureArray[4][metaballCount] = {
         1.0f, 1.0f, 0.0f, 1.0f,
         0.0f, 1.0f, 0.0f, 1.0f
     };
     
-    //Specify texture slot to be 1. Seems like triTex has already hogged slot 0
     unsigned int mbPosTexID;
     glGenTextures(1, &mbPosTexID);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, mbPosTexID);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, metaballCount, 0, GL_RGBA, GL_FLOAT, &textureArray);
     
     //  Bind slot
@@ -171,8 +158,8 @@ int main()
     float elapsedTime = 0.0f;
     float timer = 0.0f;
     int frame = 0;
+
     // render loop
-    //std::cout << "GOT HERE 1" << std::endl;
     while(!glfwWindowShouldClose(window))
     {
         float deltaTime = glfwGetTime() - lastTime;
@@ -201,8 +188,6 @@ int main()
             // Link mvp matrix with the currently boud GLSL shader
             glUniformMatrix4fv(MVP_ID, 1, false, &mvpMatrix[0][0]);
             
-            //glUniform3f(MBpos, ball.position.x, ball.position.y, ball.position.z);
-            //glUniform1f(MBrad, ball.radius);
             glUniform1f(IL, field.isoLevel);
             glUniform1f(VHL, field.voxelHalfLength);
 
@@ -214,7 +199,6 @@ int main()
             
             elapsedTime -= 0.013f;
             frame++;
-            //std::cout << "GOT HERE 2" << std::endl;
         }
     }
 
