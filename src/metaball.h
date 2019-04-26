@@ -8,17 +8,32 @@ struct Metaball
 {
 public:
     glm::vec3 position;
+    glm::vec3 fwd;
     float radius;
+    float animateSpeed = 1.0f;
 public:
     Metaball() :
         position(glm::vec3(0, 0, 0)),
-        radius(1)
+        radius(1),
+        fwd(glm::vec3(0,0,0))
     {
     }
     Metaball(glm::vec3 pos, float r) :
         position(pos),
-        radius(r)
+        radius(r),
+        fwd(glm::vec3(0,0,0))
     {
+    }
+    Metaball(glm::vec3 pos, float r, glm::vec3 fwd) :
+        position(pos),
+        radius(r),
+        fwd(glm::normalize(fwd))
+    {
+    }
+
+    void Animate(float deltaTime)
+    {
+        position += fwd*deltaTime*animateSpeed;
     }
 };
 
@@ -105,7 +120,12 @@ public:
                     RandomFloat(0.0, 1.0),
                     RandomFloat(0.0, 1.0)
                 ),
-                r
+                r,
+                glm::vec3(
+                    RandomFloat(0.0, 1.0),
+                    RandomFloat(0.0, 1.0),
+                    RandomFloat(0.0, 1.0)
+                )
             ));
         }
     }
@@ -119,6 +139,27 @@ public:
             textureArray[i][1] = ball.position.y;
             textureArray[i][2] = ball.position.z;
             textureArray[i][3] = ball.radius;
+        }
+    }
+
+    void Animate(float deltaTime)
+    {
+        for(int i = 0; i < metaballs.size(); ++i)
+        {
+            metaballs[i].Animate(deltaTime);
+
+            if(metaballs[i].position.x < 0.0f)
+                metaballs[i].position.x = 1.0f;
+            if(metaballs[i].position.x > 1.0f)
+                metaballs[i].position.x = 0.0f;
+            if(metaballs[i].position.y < 0.0f)
+                metaballs[i].position.y = 1.0f;
+            if(metaballs[i].position.y > 1.0f)
+                metaballs[i].position.y = 0.0f;
+            if(metaballs[i].position.z < 0.0f)
+                metaballs[i].position.z = 1.0f;
+            if(metaballs[i].position.z > 1.0f)
+                metaballs[i].position.z = 0.0f;
         }
     }
 };

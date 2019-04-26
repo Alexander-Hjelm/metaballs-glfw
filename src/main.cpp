@@ -140,9 +140,9 @@ int main()
     glUniform3f(VV, -4,-3,-3);
 
     // Build metaballs array (randomly for now)
-    float textureArray[metaballCount][4];
     field.GenerateRandomBalls(metaballCount, 1.0);
-    field.BuildTextureArray(textureArray);
+    float metaballTextureArray[metaballCount][4];
+
 
     unsigned int mbPosTexID;
     glGenTextures(1, &mbPosTexID);
@@ -150,7 +150,7 @@ int main()
     glBindTexture(GL_TEXTURE_2D, mbPosTexID);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, metaballCount, 0, GL_RGBA, GL_FLOAT, &textureArray);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, metaballCount, 0, GL_RGBA, GL_FLOAT, &metaballTextureArray);
     
     //  Bind slot
     glUniform1i(triTex, 0);
@@ -174,6 +174,7 @@ int main()
         if(timer >= 1.0f)
         {
             std::string newTitle = "FPS: " + std::to_string(frame);
+            std::cout << "FPS: " + std::to_string(frame) << std::endl;
             glfwSetWindowTitle(window, newTitle.c_str());
             timer -= 1.0f;
             frame = 0;
@@ -188,6 +189,18 @@ int main()
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+            // animate metaballs and send new texture to the shader
+            field.Animate(elapsedTime);
+            field.BuildTextureArray(metaballTextureArray);
+
+            // TODO: not all these texture settings may be neccessary, try removing one line at a time
+            glGenTextures(1, &mbPosTexID);
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, mbPosTexID);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, metaballCount, 0, GL_RGBA, GL_FLOAT, &metaballTextureArray);
+    
             // Link mvp matrix with the currently boud GLSL shader
             glUniformMatrix4fv(MVP_ID, 1, false, &mvpMatrix[0][0]);
             
