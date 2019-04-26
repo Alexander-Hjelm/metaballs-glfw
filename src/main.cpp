@@ -10,12 +10,12 @@
 
 Shader* shader;  //  Let's make the shader global at this moment, just for the sake of recompilation
 MarchingCube* marchingCube;
-PotentialField field(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1), 20);
-unsigned const int metaballCount = 3;
+PotentialField field(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1), 200);
+unsigned const int metaballCount = 10;
 
 void processInput(GLFWwindow *window)
 {
-    float speed = 0.01f;
+    float speed = 0.1f;
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
@@ -139,12 +139,11 @@ int main()
     glUniform1i(MBC, metaballCount);
     glUniform3f(VV, -4,-3,-3);
 
-    float textureArray[4][metaballCount] = {
-        1.0f, 1.0f, 0.0f, 1.0f,
-        0.0f, 1.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 1.0f, 1.0f
-    };
-    
+    // Build metaballs array (randomly for now)
+    float textureArray[metaballCount][4];
+    field.GenerateRandomBalls(metaballCount, 1.0);
+    field.BuildTextureArray(textureArray);
+
     unsigned int mbPosTexID;
     glGenTextures(1, &mbPosTexID);
     glActiveTexture(GL_TEXTURE1);

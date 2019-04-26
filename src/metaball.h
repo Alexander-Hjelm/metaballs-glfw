@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <iostream>
+#include <vector>
 struct Metaball
 {
 public:
@@ -21,6 +22,13 @@ public:
     }
 };
 
+float RandomFloat(float a, float b) {
+    float random = ((float) rand()) / (float) RAND_MAX;
+    float diff = b - a;
+    float r = random * diff;
+    return a + r;
+}
+
 struct PotentialField
 {
 public:
@@ -32,7 +40,8 @@ public:
     size_t fieldSize;
     unsigned int voxelCount;
     float voxelHalfLength;
-    float isoLevel = 3.0f;
+    float isoLevel = 20.0f;
+    std::vector<Metaball> metaballs;
 public:
     PotentialField() :
         minCorner(glm::vec3(-1, -1, -1)),
@@ -83,6 +92,33 @@ public:
                     fieldData[(i*LOD*LOD + j*LOD + k) * 3 + 2] = minCorner.z + k * 2 * voxelHalfLength + voxelHalfLength;
                 }
             }
+        }
+    }
+
+    void GenerateRandomBalls(int ballCount, float r)
+    {
+        for(int i = 0; i < ballCount; ++i)
+        {
+            metaballs.push_back(Metaball(
+                glm::vec3(
+                    RandomFloat(0.0, 1.0),
+                    RandomFloat(0.0, 1.0),
+                    RandomFloat(0.0, 1.0)
+                ),
+                r
+            ));
+        }
+    }
+
+    void BuildTextureArray(float textureArray[][4])
+    {
+        for(int i = 0; i < metaballs.size(); ++i)
+        {
+            Metaball ball = metaballs[i];
+            textureArray[i][0] = ball.position.x;
+            textureArray[i][1] = ball.position.y;
+            textureArray[i][2] = ball.position.z;
+            textureArray[i][3] = ball.radius;
         }
     }
 };
