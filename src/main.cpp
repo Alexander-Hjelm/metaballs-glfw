@@ -10,7 +10,7 @@
 
 Shader* shader;  //  Let's make the shader global at this moment, just for the sake of recompilation
 MarchingCube* marchingCube;
-PotentialField field(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1), 200);
+PotentialField field(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1), 80);
 unsigned const int metaballCount = 10;
 
 void processInput(GLFWwindow *window)
