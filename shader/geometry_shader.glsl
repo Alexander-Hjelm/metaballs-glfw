@@ -77,7 +77,7 @@ void main() {
     if (cubeindex == 0 || cubeindex == 255)
         return;
 
-    /* Find the vertices where the surface intersects the cube */
+    //  Find the vertices where the surface intersects the cube
     vertlist[0]  = VertexInterp(isolevel,corners[0],corners[1],values[0],values[1]);
     vertlist[1]  = VertexInterp(isolevel,corners[1],corners[2],values[1],values[2]);
     vertlist[2]  = VertexInterp(isolevel,corners[2],corners[3],values[2],values[3]);
@@ -98,16 +98,17 @@ void main() {
         vec3 pt2 = vertlist[triTableValue(cubeindex, i+1)];
         vec3 pt3 = vertlist[triTableValue(cubeindex, i+2)];
 
-        frag.normal = normalize(cross(pt2-pt1, pt3-pt1));
+        frag.normal = normalize(cross(pt3-pt1, pt2-pt1));
 
         gl_Position = MVP * vec4(vertlist[triTableValue(cubeindex, i)], 1.0);
         EmitVertex();
         gl_Position = MVP * vec4(vertlist[triTableValue(cubeindex, i+1)], 1.0);
         EmitVertex();
         gl_Position = MVP * vec4(vertlist[triTableValue(cubeindex, i+2)], 1.0);
-        EmitVertex();       
-    }
+        EmitVertex();
 
-    EndPrimitive();
+        //  End of triangle
+        EndPrimitive();
+    }
 
 }

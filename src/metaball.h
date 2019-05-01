@@ -18,12 +18,6 @@ public:
         fwd(glm::vec3(0,0,0))
     {
     }
-    Metaball(glm::vec3 pos, float r) :
-        position(pos),
-        radius(r),
-        fwd(glm::vec3(0,0,0))
-    {
-    }
     Metaball(glm::vec3 pos, float r, glm::vec3 fwd) :
         position(pos),
         radius(r),
@@ -33,7 +27,7 @@ public:
 
     void Animate(float deltaTime)
     {
-        position += fwd*deltaTime*animateSpeed;
+        position += fwd * deltaTime * animateSpeed;
     }
 };
 
@@ -55,7 +49,7 @@ public:
     size_t fieldSize;
     unsigned int voxelCount;
     float voxelHalfLength;
-    float isoLevel = 20.0f;
+    float isoLevel;
     std::vector<Metaball> metaballs;
 public:
     PotentialField() :
@@ -64,7 +58,9 @@ public:
         LOD(10),
         fieldData(nullptr),
         fieldSize(0),
-        voxelCount(1000)
+        voxelCount(1000),
+        voxelHalfLength(0),
+        isoLevel(20.0f)
     {
         ConstructVertexBuffer();
     }
@@ -74,21 +70,16 @@ public:
         LOD(count),
         fieldData(nullptr),
         fieldSize(0),
-        voxelCount(count * count * count)
+        voxelCount(count * count * count),
+        voxelHalfLength(0),
+        isoLevel(20.0f)
     {
-        if(min.x - max.x == min.y - max.y == min.z - max.z)
-        {
-            std::cout << "Potential field must be a cube with equal side length!" << std::endl;
-            return;
-        }
+        assert(min.x - max.x != min.y - max.y != min.z - max.z);    //  Potential field must be a cube with equal side length!
         ConstructVertexBuffer();
     }
     ~PotentialField()
     {
-        if(fieldData)
-        {
-            delete[] fieldData;
-        }
+        if(fieldData) delete[] fieldData;
         fieldData = nullptr;
     }
     void ConstructVertexBuffer()
@@ -119,9 +110,9 @@ public:
                     RandomFloat(0.0, 1.0),
                     RandomFloat(0.0, 1.0),
                     RandomFloat(0.0, 1.0)
-                ),
-                r,
-                glm::vec3(
+                ),                          //  Position
+                r,                          //  Radius
+                glm::vec3(                  //  Forward
                     RandomFloat(0.0, 1.0),
                     RandomFloat(0.0, 1.0),
                     RandomFloat(0.0, 1.0)

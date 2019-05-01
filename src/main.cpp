@@ -8,46 +8,18 @@
 #include "metaball.h"
 #include "shader.h"
 
-Shader* shader;  //  Let's make the shader global at this moment, just for the sake of recompilation
-MarchingCube* marchingCube;
-PotentialField field(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1), 80);
-unsigned const int metaballCount = 10;
+PotentialField field(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1), 40);
+const unsigned int metaballCount = 10;
+const float speed = 0.1f;
 
 void processInput(GLFWwindow *window)
 {
-    float speed = 0.1f;
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-    if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
-        shader->RecompileAndLink(); //  Recompile shader if "R" is pressed
     if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         field.isoLevel += speed;
-//        ball.position.z += speed;
     if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         field.isoLevel -= speed;
-//        ball.position.z -= speed;
-//    if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-//        ball.position.x += speed;
-//    if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-//        ball.position.x -= speed;
-//    if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-//        ball.position.y += speed;
-//    if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-//        ball.position.y -= speed;
-//    {   //  metaball out-of-bound check, nothing to do with glfw input
-//        if(ball.position.x < field.minCorner.x)
-//            ball.position.x = field.maxCorner.x;
-//        if(ball.position.x > field.maxCorner.x)
-//            ball.position.x = field.minCorner.x;
-//        if(ball.position.y < field.minCorner.y)
-//            ball.position.y = field.maxCorner.y;
-//        if(ball.position.y > field.maxCorner.y)
-//            ball.position.y = field.minCorner.y;
-//        if(ball.position.z < field.minCorner.z)
-//            ball.position.z = field.maxCorner.z;
-//        if(ball.position.z > field.maxCorner.z)
-//            ball.position.z = field.minCorner.z;
-//    }
 }
 
 int main()
@@ -79,51 +51,38 @@ int main()
     }
     
     // Shader initialization (should be created in run-time, because glad needs to be init first)
-    shader = new Shader();
+    Shader* shader = new Shader();
     glUseProgram(shader->Program);
-    marchingCube = new MarchingCube();
+    MarchingCube* marchingCube = new MarchingCube();
 
-    // Vertex buffer object, gives instant access to vertices in the GPU
-    // GenBuffers yields a unique ID for the newly created buffer
+    // Vertex buffer object
     unsigned int VBO;
     glGenBuffers(1, &VBO);
-    
-    // Specify type of the vertex buffer and bind it to GL_ARRAY_BUFFER
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-    // Copy the vertex data to the boud buffer's memory
-    // GL_STATIC_DRAW specifies how the GPU should manage the data
-    // (static = the data will likely not change)
     glBufferData(GL_ARRAY_BUFFER, field.fieldSize, field.fieldData, GL_STATIC_DRAW);
-
+    
     // Vertex array object
-    // Holds all our buffers
-    // When we want to render all triangles we can simply bind the vertex array and draw
     unsigned int VAO = 0;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // Specify the attribute location (0) of the first vertex buffer, and the type of data.
     glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, NULL);
 
-    // Model matrx (identity, model will be at the origin)
+    // Matrices
+    const float FOV = 50.0f;
     glm::mat4 modelMatrix = glm::mat4(1.0f);
-
     glm::mat4 viewMatrix = glm::lookAt(
         glm::vec3(4,3,3),   // Camera position
         glm::vec3(0,0,0),   // LookAt position
         glm::vec3(0,1,0)    // Up vector
     );
-
-    float FOV = 50.0f;
     glm::mat4 projectionMatrix = glm::perspective(
         glm::radians(FOV),  // FOV
         4.0f / 3.0f,        // Aspect ratio
         0.1f,               // Near clipping plane
         100.0f              // Far clipping plane
     );
-
     glm::mat4 mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
 
     // Get an id for the mvp matrixmvp matrix
@@ -180,7 +139,7 @@ int main()
             frame = 0;
         }
         
-        if(elapsedTime >= 0.013f)      //  Render at 60 fps
+        if(elapsedTime >= 0.013f)      //  Target FPS is 60 fps
         {
             // input
             processInput(window);
@@ -190,29 +149,25 @@ int main()
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             // animate metaballs and send new texture to the shader
-            field.Animate(elapsedTime);
+            field.Animate(deltaTime);
             field.BuildTextureArray(metaballTextureArray);
 
             // TODO: not all these texture settings may be neccessary, try removing one line at a time
-            glGenTextures(1, &mbPosTexID);
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, mbPosTexID);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, metaballCount, 0, GL_RGBA, GL_FLOAT, &metaballTextureArray);
     
             // Link mvp matrix with the currently boud GLSL shader
             glUniformMatrix4fv(MVP_ID, 1, false, &mvpMatrix[0][0]);
-            
             glUniform1f(IL, field.isoLevel);
             glUniform1f(VHL, field.voxelHalfLength);
 
+            //  Draw
             glDrawArrays(GL_POINTS, 0, field.voxelCount);
             
             // check and call events and swap the buffers
             glfwPollEvents();
             glfwSwapBuffers(window);
-            
             elapsedTime -= 0.013f;
             frame++;
         }
