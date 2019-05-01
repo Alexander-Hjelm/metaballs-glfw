@@ -139,7 +139,7 @@ int main()
             frame = 0;
         }
         
-        if(elapsedTime >= 0.013f)      //  Target FPS is 60 fps
+        if(elapsedTime >= 0.016667f)      //  Target FPS is 60 fps
         {
             // input
             processInput(window);
