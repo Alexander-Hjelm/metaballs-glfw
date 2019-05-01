@@ -149,7 +149,7 @@ int main()
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             // animate metaballs and send new texture to the shader
-            field.Animate(deltaTime);
+            field.Animate(elapsedTime);
             field.BuildTextureArray(metaballTextureArray);
 
             // TODO: not all these texture settings may be neccessary, try removing one line at a time
@@ -168,7 +168,7 @@ int main()
             // check and call events and swap the buffers
             glfwPollEvents();
             glfwSwapBuffers(window);
-            elapsedTime -= 0.013f;
+            elapsedTime = 0.0;
             frame++;
         }
     }
