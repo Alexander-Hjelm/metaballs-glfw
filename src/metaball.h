@@ -8,27 +8,68 @@ struct Metaball
 {
 public:
     glm::vec3 position;
-    glm::vec3 fwd;
+    glm::vec3 velocity;
     float radius;
-    float animateSpeed = 1.0f;
+    float mass;
 public:
     Metaball() :
         position(glm::vec3(0, 0, 0)),
         radius(1),
-        fwd(glm::vec3(0,0,0))
+        velocity(glm::vec3(0,0,0)),
+        mass(1.0f)
     {
     }
-    Metaball(glm::vec3 pos, float r, glm::vec3 fwd) :
+    Metaball(glm::vec3 pos, float r, glm::vec3 velocity) :
         position(pos),
         radius(r),
-        fwd(glm::normalize(fwd))
+        velocity(glm::normalize(velocity)),
+        mass(1.0f)
+    {
+    }
+    Metaball(glm::vec3 pos, float r, glm::vec3 velocity, float m) :
+        position(pos),
+        radius(r),
+        velocity(glm::normalize(velocity)),
+        mass(m)
     {
     }
 
     void Animate(float deltaTime)
     {
-        position += fwd * deltaTime * animateSpeed;
+        position += velocity * deltaTime;
     }
+
+    /////////// PHYSICS HELPERS ////////////
+
+    // Apply a force to the object. This factors in mass. A bigger mass means a bigger force is needed to yield the same change in velocity.
+    void ApplyForce(glm::vec3 force, float deltaTime)
+    {
+        ApplyAcceleration(force/mass, deltaTime);
+    }
+
+    // Apply an acceleration to the object. Useful for uniform forces like gravity, where the object's mass does not matter.
+    void ApplyAcceleration(glm::vec3 acceleration, float deltaTime)
+    {
+        velocity += acceleration * deltaTime;
+    }
+
+    // Restrict the velocity to a maximum value
+    void LimitVelocity(float terminalVelocity)
+    {
+        float vMin = glm::min(glm::length(velocity), terminalVelocity);
+        velocity = glm::normalize(velocity)*vMin;
+    }
+
+    // Reflect the velocity vector along the given surface normal.
+    // The elasicity property determines how much energy is preserved after the collision, and should be between 0.0 -> 1.0.
+    void Bounce(glm::vec3 surfaceNormal, float elasticity)
+    {
+        surfaceNormal = glm::normalize(surfaceNormal);
+        glm::vec3 normalProjected = glm::dot(velocity, surfaceNormal) * surfaceNormal;
+        glm::vec3 newDir = velocity - 2.0f*normalProjected;
+        velocity = newDir * elasticity;
+    }
+
 };
 
 float RandomFloat(float a, float b) {
