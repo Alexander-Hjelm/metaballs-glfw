@@ -15,10 +15,10 @@ void main() {
     vec3 reflectionDir = 2*dot(frag.normal, lightDir)*frag.normal - lightDir;
 
     vec3 ambientColor = vec3(0.2, 0.2, 0.2);
-    vec3 diffuseColor = vec3(0.4, 0.5, 0.2);
+    vec3 diffuseColor = vec3(0.3, 0.4, 1.0);
     vec3 specularColor = vec3(0.8, 0.8, 0.8);
 
-    float shininess = 7;
+    float shininess = 22;
 
     vec3 finalColor =
         ambientColor

@@ -8,8 +8,8 @@
 #include "metaball.h"
 #include "shader.h"
 
-PotentialField field(glm::vec3(-1, -1, -1), glm::vec3(1, 1, 1), 40);
-const unsigned int metaballCount = 10;
+PotentialField field(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), 50);
+const unsigned int metaballCount = 50;
 const float speed = 0.1f;
 
 void processInput(GLFWwindow *window)
@@ -20,6 +20,8 @@ void processInput(GLFWwindow *window)
         field.isoLevel += speed;
     if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         field.isoLevel -= speed;
+    if(glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
+        field.GenerateRandomBalls(metaballCount, 1.0);
 }
 
 int main()
@@ -73,7 +75,7 @@ int main()
     const float FOV = 50.0f;
     glm::mat4 modelMatrix = glm::mat4(1.0f);
     glm::mat4 viewMatrix = glm::lookAt(
-        glm::vec3(4,3,3),   // Camera position
+        glm::vec3(2,2,2),   // Camera position
         glm::vec3(0,0,0),   // LookAt position
         glm::vec3(0,1,0)    // Up vector
     );

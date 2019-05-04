@@ -36,6 +36,8 @@ public:
 
     void Animate(float deltaTime)
     {
+        ApplyAcceleration(glm::vec3(0.0f, -10.0f, 0.0f), deltaTime);
+        LimitVelocity(9.8f);
         position += velocity * deltaTime;
     }
 
@@ -90,7 +92,7 @@ public:
     size_t fieldSize;
     unsigned int voxelCount;
     float voxelHalfLength;
-    float isoLevel;
+    float isoLevel = 125.0f;
     std::vector<Metaball> metaballs;
 public:
     PotentialField() :
@@ -100,8 +102,7 @@ public:
         fieldData(nullptr),
         fieldSize(0),
         voxelCount(1000),
-        voxelHalfLength(0),
-        isoLevel(20.0f)
+        voxelHalfLength(0)
     {
         ConstructVertexBuffer();
     }
@@ -112,8 +113,7 @@ public:
         fieldData(nullptr),
         fieldSize(0),
         voxelCount(count * count * count),
-        voxelHalfLength(0),
-        isoLevel(20.0f)
+        voxelHalfLength(0)
     {
         assert(min.x - max.x != min.y - max.y != min.z - max.z);    //  Potential field must be a cube with equal side length!
         ConstructVertexBuffer();
@@ -144,6 +144,7 @@ public:
 
     void GenerateRandomBalls(int ballCount, float r)
     {
+        metaballs.clear();
         for(int i = 0; i < ballCount; ++i)
         {
             metaballs.push_back(Metaball(
@@ -180,18 +181,34 @@ public:
         {
             metaballs[i].Animate(deltaTime);
 
-            if(metaballs[i].position.x < 0.0f)
-                metaballs[i].position.x = 1.0f;
-            if(metaballs[i].position.x > 1.0f)
-                metaballs[i].position.x = 0.0f;
+            //  Upper and lower bound
             if(metaballs[i].position.y < 0.0f)
-                metaballs[i].position.y = 1.0f;
+            {
+                metaballs[i].position.y = 0.0f;
+                metaballs[i].Bounce(glm::vec3(0.0f, 1.0f, 0.0f), 0.3f);
+            }
             if(metaballs[i].position.y > 1.0f)
                 metaballs[i].position.y = 0.0f;
-            if(metaballs[i].position.z < 0.0f)
-                metaballs[i].position.z = 1.0f;
-            if(metaballs[i].position.z > 1.0f)
-                metaballs[i].position.z = 0.0f;
+            
+            //  Wrap
+//            if(metaballs[i].position.x < 0.0f)
+//                metaballs[i].position.x = 1.0f;
+//            if(metaballs[i].position.x > 1.0f)
+//                metaballs[i].position.x = 0.0f;
+//            if(metaballs[i].position.z < 0.0f)
+//                metaballs[i].position.z = 1.0f;
+//            if(metaballs[i].position.z > 1.0f)
+//                metaballs[i].position.z = 0.0f;
+            
+            for(int j = 0; j < metaballs.size(); ++j)
+            {
+                if(i == j)
+                    continue;
+                float dist = glm::distance(metaballs[i].position, metaballs[j].position);
+                glm::vec3 dir = glm::normalize(metaballs[i].position - metaballs[j].position) * 15.0f;
+                if(dist <= 0.1f)
+                    metaballs[i].ApplyForce(dir, deltaTime);
+            }
         }
     }
 };
