@@ -36,8 +36,11 @@ public:
 
     void Animate(float deltaTime)
     {
-        ApplyAcceleration(glm::vec3(0.0f, -10.0f, 0.0f), deltaTime);
-        LimitVelocity(9.8f);
+        const float gravity_y = 3.0;
+        const float velocity_limit = 10.0;
+
+        ApplyAcceleration(glm::vec3(0.0f, -gravity_y, 0.0f), deltaTime);
+        LimitVelocity(velocity_limit);
         position += velocity * deltaTime;
     }
 
@@ -177,19 +180,51 @@ public:
 
     void Animate(float deltaTime)
     {
+        const float elasticity_xz = 0.8;
+        const float elasticity_y = 1.0;
+
         for(int i = 0; i < metaballs.size(); ++i)
         {
             metaballs[i].Animate(deltaTime);
 
             //  Upper and lower bound
+            //  Bounce, y-direction
             if(metaballs[i].position.y < 0.0f)
             {
                 metaballs[i].position.y = 0.0f;
-                metaballs[i].Bounce(glm::vec3(0.0f, 1.0f, 0.0f), 0.3f);
+                metaballs[i].Bounce(glm::vec3(0.0f, 1.0f, 0.0f), elasticity_y);
             }
             if(metaballs[i].position.y > 1.0f)
+            {
+                metaballs[i].Bounce(glm::vec3(0.0f, -1.0f, 0.0f), elasticity_y);
                 metaballs[i].position.y = 0.0f;
-            
+            }
+
+            //  Bounce, x-direction
+            if(metaballs[i].position.x < 0.0f)
+            {
+                metaballs[i].position.x = 0.0f;
+                metaballs[i].Bounce(glm::vec3(1.0f, 0.0f, 0.0f), elasticity_xz);
+            }
+            if(metaballs[i].position.x > 1.0f)
+            {
+                metaballs[i].position.x = 1.0f;
+                metaballs[i].Bounce(glm::vec3(-1.0f, 0.0f, 0.0f), elasticity_xz);
+            }
+
+            //  Bounce, z-direction
+            if(metaballs[i].position.z < 0.0f)
+            {
+                metaballs[i].position.z = 0.0f;
+                metaballs[i].Bounce(glm::vec3(0.0f, 0.0f, 1.0f), elasticity_xz);
+            }
+            if(metaballs[i].position.z > 1.0f)
+            {
+                metaballs[i].position.z = 1.0f;
+                metaballs[i].Bounce(glm::vec3(0.0f, 0.0f, -1.0f), elasticity_xz);
+            }
+
+
             //  Wrap
 //            if(metaballs[i].position.x < 0.0f)
 //                metaballs[i].position.x = 1.0f;
