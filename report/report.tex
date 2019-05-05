@@ -26,18 +26,35 @@
   tabsize=3
 }
 
-\title{Metaballs in GLFW, Project Report}
-\author{Alexander Hjelm (alhjelm@kth.se), Tsz Kin Chan (XXXXXXXXXXXXXXXXx@kth.se)}
-\date{\today}
-
 \begin{document}
+
+    \title{%
+      Metaballs in GLFW \\
+      \large DD2323 Project Report \\}
+
+    \author{Alexander Hjelm (alhjelm@kth.se), Tsz Kin Chan (XXXXXXXXXXXXXXXXx@kth.se)}
+
+    \date{\today}
+
     \maketitle
 
+
     \section{Summary}
+    Hippety hoppety, Women are property! >:)
     
     \section{Introduction}
+    
 
     \section{Theory}
+
+    \subsection{Metaball isosurface model}
+    Potential field where each ball has an influence point with quadratic falloff.
+
+    \subsection{Marching cubes}
+    Voxel shader with an array of predefined cube shapes. The shader selects the relevant cube shape depending on how the neighbourhood looks with respect to the potential.
+    
+    \subsection{Misc}
+    Additionally we implemented a fragment shader with basic Phong illumination, and added a physics model to the balls.
 
     \section{Implementation}
         \begin{lstlisting}
@@ -47,10 +64,15 @@
         \end{lstlisting}
 
     \section{Result}
+    *Screenshot*
+    *Link to an animated video*
 
     \section{Conslusions}
     
     Smoothed Particle Hydrodynamics
     Ellipsoid Splatting
+
+    The voxel grid size is the performance bottleneck.
+    (Possible conslusion: spatial subdivision of metaball positions will not yield the neccessary performance increase)
 
 \end{document}
