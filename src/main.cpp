@@ -71,24 +71,6 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, NULL);
 
-    // Matrices
-    const float FOV = 50.0f;
-    glm::mat4 modelMatrix = glm::mat4(1.0f);
-    glm::mat4 viewMatrix = glm::lookAt(
-        glm::vec3(2,2,2),   // Camera position
-        glm::vec3(0,0,0),   // LookAt position
-        glm::vec3(0,1,0)    // Up vector
-    );
-    glm::mat4 projectionMatrix = glm::perspective(
-        glm::radians(FOV),  // FOV
-        4.0f / 3.0f,        // Aspect ratio
-        0.1f,               // Near clipping plane
-        100.0f              // Far clipping plane
-    );
-    glm::mat4 mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
-
-    // Get an id for the mvp matrixmvp matrix
-    unsigned int MVP_ID = glGetUniformLocation(shader->Program, "MVP");
     // Get an id for the metaball configuration
     unsigned int VHL = glGetUniformLocation(shader->Program, "voxelHalfLength");
     unsigned int MBC = glGetUniformLocation(shader->Program, "metaballCount");
@@ -120,6 +102,7 @@ int main()
     glEnable(GL_DEPTH_TEST);
     float lastTime = glfwGetTime();
     float elapsedTime = 0.0f;
+    float totalTime = 0.0f;
     float timer = 0.0f;
     int frame = 0;
 
@@ -129,6 +112,7 @@ int main()
         float deltaTime = glfwGetTime() - lastTime;
         lastTime = glfwGetTime();
         elapsedTime += deltaTime;
+        totalTime += deltaTime;
         timer += deltaTime;
         
         //  One second has passed, log the fps on window title
@@ -154,11 +138,29 @@ int main()
             field.Animate(elapsedTime);
             field.BuildTextureArray(metaballTextureArray);
 
-            // TODO: not all these texture settings may be neccessary, try removing one line at a time
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, mbPosTexID);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, metaballCount, 0, GL_RGBA, GL_FLOAT, &metaballTextureArray);
     
+            // Matrices
+            const float FOV = 50.0f;
+            glm::mat4 modelMatrix = glm::mat4(1.0f);
+            glm::mat4 viewMatrix = glm::lookAt(
+                glm::vec3(glm::sin(totalTime)*2,1.2, glm::cos(totalTime)*2),   // Camera position
+                glm::vec3(0.5,0,0.5),   // LookAt position
+                glm::vec3(0,1,0)    // Up vector
+            );
+            glm::mat4 projectionMatrix = glm::perspective(
+                glm::radians(FOV),  // FOV
+                4.0f / 3.0f,        // Aspect ratio
+                0.1f,               // Near clipping plane
+                100.0f              // Far clipping plane
+            );
+            glm::mat4 mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
+
+            // Get an id for the mvp matrixmvp matrix
+            unsigned int MVP_ID = glGetUniformLocation(shader->Program, "MVP");
+
             // Link mvp matrix with the currently boud GLSL shader
             glUniformMatrix4fv(MVP_ID, 1, false, &mvpMatrix[0][0]);
             glUniform1f(IL, field.isoLevel);
