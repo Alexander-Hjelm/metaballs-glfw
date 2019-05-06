@@ -44,19 +44,23 @@
     
     \section{Introduction}
     
+    Using low-level graphics programming, we aim to program and render a dynamic fluid using the metaballs with the marching cubes technique. The fluid particles use a basic physics model to collide with each other and the environment. We will restrict ourselves to making a realtime simulation with the order of 50-100 particles.
 
     \section{Theory}
 
-    \subsection{Metaball isosurface model}
-    Potential field where each ball has an influence point with quadratic falloff.
+        \subsection{Metaball isosurface model}
+            Potential field where each ball has an influence point with quadratic falloff.
 
-    \subsection{Marching cubes}
-    Voxel shader with an array of predefined cube shapes. The shader selects the relevant cube shape depending on how the neighbourhood looks with respect to the potential.
+        \subsection{Marching cubes}
+            Voxel shader with an array of predefined cube shapes. The shader selects the relevant cube shape depending on how the neighbourhood looks with respect to the potential.
     
-    \subsection{Misc}
-    Additionally we implemented a fragment shader with basic Phong illumination, and added a physics model to the balls.
+        \subsection{Misc}
+            Additionally we implemented a fragment shader with basic Phong illumination, and added a physics model to the balls.
 
     \section{Implementation}
+
+        We have used GLFW and GLSL. GLFW is a utility library for working with OpenGL, and we will use it as an interface between the high-level program logic and the low-level rendering. Mainly we will use GLFW to manage the OpenGL context and make GPU drawcalls. GLSL is the OpenGL shading language that gives developers control over the rendering pipeline. We will use GLSL to write our shader programs.
+
         \begin{lstlisting}
         private void Test(){
             int a = 1;
@@ -64,15 +68,14 @@
         \end{lstlisting}
 
     \section{Result}
-    *Screenshot*
-    *Link to an animated video*
+        *Screenshot*
+        *Link to an animated video*
 
     \section{Conslusions}
     
-    Smoothed Particle Hydrodynamics
-    Ellipsoid Splatting
+    	It seems that the industry standard for fluid simulation in high quality games and video is the Smoothed Particle Hydrodynamics model with Ellipsoid Splatting rendering.
 
-    The voxel grid size is the performance bottleneck.
-    (Possible conslusion: spatial subdivision of metaball positions will not yield the neccessary performance increase)
+        The voxel grid size is the performance bottleneck.
+        (Possible conslusion: spatial subdivision of metaball positions will not yield the neccessary performance increase)
 
 \end{document}
