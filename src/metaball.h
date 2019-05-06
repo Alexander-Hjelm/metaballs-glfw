@@ -4,42 +4,31 @@
 #include <glm/gtx/string_cast.hpp>
 #include <iostream>
 #include <vector>
+#include <cmath>
+
+//  Global constant
+const glm::vec3 gravity_force = glm::vec3(0.0f, -9.8f, 0.0f);
+
 struct Metaball
 {
 public:
-    glm::vec3 position;
-    glm::vec3 velocity;
-    float radius;
-    float mass;
+    glm::vec3 position      = glm::vec3(0,0,0);
+    glm::vec3 velocity      = glm::vec3(0,0,0);
+    glm::vec3 acceleration  = glm::vec3(0,0,0);
+    float density           = 0.0f;
+    float radius            = 1.0f;
+    float mass              = 1.0f;
+    float pressure          = 0.0f;
+    const float velocity_limit = 10.0;
+    const float acceleration_limit = 10.0;
 public:
-    Metaball() :
-        position(glm::vec3(0, 0, 0)),
-        radius(1),
-        velocity(glm::vec3(0,0,0)),
-        mass(1.0f)
-    {
-    }
-    Metaball(glm::vec3 pos, float r, glm::vec3 velocity) :
-        position(pos),
-        radius(r),
-        velocity(glm::normalize(velocity)),
-        mass(1.0f)
-    {
-    }
-    Metaball(glm::vec3 pos, float r, glm::vec3 velocity, float m) :
-        position(pos),
-        radius(r),
-        velocity(glm::normalize(velocity)),
-        mass(m)
-    {
-    }
+    Metaball() {}
+    Metaball(glm::vec3 pos, float r, glm::vec3 velocity) : position(pos), radius(r), velocity(glm::normalize(velocity)) {}
+    Metaball(glm::vec3 pos, float r, glm::vec3 velocity, float m) : position(pos), radius(r), velocity(glm::normalize(velocity)), mass(m) {}
 
     void Animate(float deltaTime)
     {
-        const float gravity_y = 3.0;
-        const float velocity_limit = 10.0;
-
-        ApplyAcceleration(glm::vec3(0.0f, -gravity_y, 0.0f), deltaTime);
+        velocity += acceleration * deltaTime;
         LimitVelocity(velocity_limit);
         position += velocity * deltaTime;
     }
@@ -95,7 +84,7 @@ public:
     size_t fieldSize;
     unsigned int voxelCount;
     float voxelHalfLength;
-    float isoLevel = 125.0f;
+    float isoLevel = 100.0f;
     std::vector<Metaball> metaballs;
 public:
     PotentialField() :
@@ -158,9 +147,9 @@ public:
                 ),                          //  Position
                 r,                          //  Radius
                 glm::vec3(                  //  Forward
-                    RandomFloat(0.0, 1.0),
-                    RandomFloat(0.0, 1.0),
-                    RandomFloat(0.0, 1.0)
+                    RandomFloat(-1.0, 1.0),
+                    RandomFloat(-1.0, 1.0),
+                    RandomFloat(-1.0, 1.0)
                 )
             ));
         }
@@ -180,8 +169,8 @@ public:
 
     void Animate(float deltaTime)
     {
-        const float elasticity_xz = 0.8;
-        const float elasticity_y = 1.0;
+        const float elasticity_xz = 0.4;
+        const float elasticity_y = 0.6;
 
         for(int i = 0; i < metaballs.size(); ++i)
         {
@@ -192,12 +181,12 @@ public:
             if(metaballs[i].position.y < 0.0f)
             {
                 metaballs[i].position.y = 0.0f;
-                metaballs[i].Bounce(glm::vec3(0.0f, 1.0f, 0.0f), elasticity_y);
+//                metaballs[i].Bounce(glm::vec3(0.0f, 1.0f, 0.0f), elasticity_y);
             }
             if(metaballs[i].position.y > 1.0f)
             {
-                metaballs[i].Bounce(glm::vec3(0.0f, -1.0f, 0.0f), elasticity_y);
-                metaballs[i].position.y = 0.0f;
+                metaballs[i].position.y = 1.0f;
+//                metaballs[i].Bounce(glm::vec3(0.0f, -1.0f, 0.0f), elasticity_y);
             }
 
             //  Bounce, x-direction
@@ -224,28 +213,89 @@ public:
                 metaballs[i].Bounce(glm::vec3(0.0f, 0.0f, -1.0f), elasticity_xz);
             }
 
-
-            //  Wrap
-//            if(metaballs[i].position.x < 0.0f)
-//                metaballs[i].position.x = 1.0f;
-//            if(metaballs[i].position.x > 1.0f)
-//                metaballs[i].position.x = 0.0f;
-//            if(metaballs[i].position.z < 0.0f)
-//                metaballs[i].position.z = 1.0f;
-//            if(metaballs[i].position.z > 1.0f)
-//                metaballs[i].position.z = 0.0f;
-            
+        }
+        
+        //  Smoothed Particle Hydrodynamics Calculation
+        SPH();
+        
+    }
+    
+    
+    //  Doing SPH calculation
+    void SPH()
+    {
+        const float smoothingRadius = 0.1f;
+        const float pressureConstant = 20.0f;
+        const float initialDensity = 0.0f;
+        
+        //  In order to know a particle's acceleration, we must know its density and pressure first.
+        for(int i = 0; i < metaballs.size(); ++i)
+        {
+            //  Density
             for(int j = 0; j < metaballs.size(); ++j)
             {
-                if(i == j)
+                //  Same metaball, skip this comparison.
+                if(i==j)
                     continue;
-                float dist = glm::distance(metaballs[i].position, metaballs[j].position);
-                glm::vec3 dir = glm::normalize(metaballs[i].position - metaballs[j].position) * 15.0f;
-                if(dist <= 0.1f)
-                    metaballs[i].ApplyForce(dir, deltaTime);
+                
+                float dist = glm::distance(metaballs[i].position,  metaballs[j].position);
+                metaballs[i].density += metaballs[j].mass * Poly6SmoothingKernel(dist, smoothingRadius);
             }
+            
+            metaballs[i].density = std::fmax(metaballs[i].density, initialDensity);
+            
+            //  Pressure
+            metaballs[i].pressure = pressureConstant * (metaballs[i].density - initialDensity);
         }
+        
+        //  Finally, find the acceleration of this particle.
+        for(int i = 0; i < metaballs.size(); ++i)
+        {
+            metaballs[i].acceleration = glm::vec3(0, 0, 0);
+            for(int j = 0; j < metaballs.size(); ++j)
+            {
+                //  Same metaball, skip this comparison.
+                if(i==j)
+                    continue;
+                
+                float mi = metaballs[i].mass;
+                float mj = metaballs[j].mass;
+                float Pi = metaballs[i].pressure;
+                float Pj = metaballs[j].pressure;
+                float pi = metaballs[i].density;
+                float pj = metaballs[j].density;
+                
+                float dist = glm::distance(metaballs[i].position,  metaballs[j].position);
+                if(dist == 0.0) { continue; }
+                
+                glm::vec3 normalizedDirection = glm::normalize(metaballs[i].position - metaballs[j].position);
+                
+                metaballs[i].acceleration -= (mj / mi) * ((Pi+Pj) / 2*pi*pj) * SpikyGradientKernel(dist, smoothingRadius) * normalizedDirection;
+            }
+            
+            //  Apply gravity
+            metaballs[i].acceleration += gravity_force;
+            
+        }
+        
     }
+    
+    //=====================================
+    //  W_ij = 315*(h^2-r^2)^3 / 64*pi*h^9
+    //=====================================
+    float Poly6SmoothingKernel(float r, float h)
+    {
+        return 315 * std::pow(h*h - r*r, 3) / 64 * 3.1415f * std::pow(h, 9);
+    }
+    
+    //=====================================
+    //  ∇W_ij = -45*(h-r)^2/pi*h^6
+    //=====================================
+    float SpikyGradientKernel(float r, float h)
+    {
+        return -45 * (h-r)*(h-r) / 3.1415f * std::pow(h, 6);
+    }
+    
 };
 
 int triTable[256][16] = {

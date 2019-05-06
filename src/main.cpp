@@ -4,12 +4,13 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
 #include <iostream>
 #include "metaball.h"
 #include "shader.h"
 
 PotentialField field(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), 50);
-const unsigned int metaballCount = 50;
+const unsigned int metaballCount = 40;
 const float speed = 0.1f;
 
 void processInput(GLFWwindow *window)
@@ -78,6 +79,7 @@ int main()
     unsigned int VV = glGetUniformLocation(shader->Program, "viewVector");
     unsigned int triTex = glGetUniformLocation(shader->Program, "triTexture");
     unsigned int mbPosTex = glGetUniformLocation(shader->Program, "metaballPosTexture");
+    unsigned int MVP_ID = glGetUniformLocation(shader->Program, "MVP");
 
     glUniform1i(MBC, metaballCount);
     glUniform3f(VV, -4,-3,-3);
@@ -144,10 +146,11 @@ int main()
     
             // Matrices
             const float FOV = 50.0f;
-            glm::mat4 modelMatrix = glm::mat4(1.0f);
+            bool rotate = false;
+            glm::mat4 modelMatrix = glm::rotate((rotate)?totalTime:0.0f, glm::vec3(0, 1, 0)) * glm::translate(glm::vec3(-0.5, -0.5, -0.5));
             glm::mat4 viewMatrix = glm::lookAt(
-                glm::vec3(glm::sin(totalTime)*2,1.2, glm::cos(totalTime)*2),   // Camera position
-                glm::vec3(0.5,0,0.5),   // LookAt position
+                glm::vec3(1,1,1),   // Camera position
+                glm::vec3(0,0,0),   // LookAt position
                 glm::vec3(0,1,0)    // Up vector
             );
             glm::mat4 projectionMatrix = glm::perspective(
@@ -158,13 +161,11 @@ int main()
             );
             glm::mat4 mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
 
-            // Get an id for the mvp matrixmvp matrix
-            unsigned int MVP_ID = glGetUniformLocation(shader->Program, "MVP");
-
             // Link mvp matrix with the currently boud GLSL shader
             glUniformMatrix4fv(MVP_ID, 1, false, &mvpMatrix[0][0]);
             glUniform1f(IL, field.isoLevel);
             glUniform1f(VHL, field.voxelHalfLength);
+            glUniform3f(VV, -1,-1,-1);
 
             //  Draw
             glDrawArrays(GL_POINTS, 0, field.voxelCount);
