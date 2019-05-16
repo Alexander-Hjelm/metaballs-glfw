@@ -3,6 +3,7 @@
 \usepackage{graphicx}
 \usepackage{listings}
 \usepackage{color}
+\usepackage{hyperref}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
@@ -124,12 +125,15 @@
             \caption{A concept of 2 metaballs in 2D. Every frame shows the two balls moving closer to each other.}
             \label{fig:result-animation}
         \end{figure}
-        *Link to an animated video*
+
+        An animated video can be found here:
+        \url{https://youtu.be/jmScNqchXs0}
 
     \section{Conslusions}
     
         \subsection{Rendering model}
         The voxel grid size is the performance bottleneck.
+        %TODO: Include a fps comparison of metaball program and only the voxel shader. How big can we make the voxel grid in both cases?
 
         \subsection{Particle model}
     	It seems that the industry standard for fluid simulation in high quality games and video is the Smoothed Particle Hydrodynamics model with Ellipsoid Splatting rendering.
