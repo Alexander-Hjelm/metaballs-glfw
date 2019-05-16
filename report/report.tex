@@ -4,6 +4,7 @@
 \usepackage{listings}
 \usepackage{color}
 \usepackage{hyperref}
+\usepackage{float}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
@@ -51,12 +52,13 @@
 
     [https://steve.hollasch.net/cgindex/misc/metaballs.html]
 
-    Pic:
-            \begin{figure}[ht]
-                \includegraphics[width=\linewidth]{img/metaballs-concept.png}
-                \caption{A conceptual visualisation of how metaballs work. Part 1 shows two metaballs gradually merging, and part 2 shows the influence of a negative metaball on a positive metaball.}
-                \label{fig:metaballs-concept}
-            \end{figure}
+    \begin{figure}[H]
+        \begin{center}
+        \includegraphics[width=0.4\linewidth]{img/metaballs-concept.png}
+        \caption{A conceptual visualisation of how metaballs work. Part 1 shows two metaballs gradually merging, and part 2 shows the influence of a negative metaball on a positive metaball.}
+        \label{fig:metaballs-concept}
+        \end{center}
+    \end{figure}
     [https://en.wikipedia.org/wiki/File:Metaballs.png]
 
     Using low-level graphics programming, we have programmed and rendered a real time, dynamic fluid using the metaballs with the marching cubes technique. The fluid particles use a basic physics model to collide with each other and the environment.
@@ -82,18 +84,22 @@
 
             If one were to draw the resulting field of a single metaball around the origin, it might look like figure 2, where the brightness of the color indicates the influence of the field at that point.
             
-            \begin{figure}[ht]
-                \includegraphics[width=\linewidth]{img/2d-potential.png}
+            \begin{figure}[H]
+                \begin{center}
+                \includegraphics[width=0.6\linewidth]{img/2d-potential.png}
                 \caption{A concept of the inverse square function in 2D}
                 \label{fig:2d-potential}
+                \end{center}
             \end{figure}
 
             A similar model for two metaballs, with their potential fields partially overlapping in different stages, is shown in figure 3.
             
-            \begin{figure}[ht]
+            \begin{figure}[H]
+                \begin{center}
                 \includegraphics[width=\linewidth]{img/2d-potential-multi.png}
                 \caption{A concept of 2 metaballs in 2D. Every frame shows the two balls moving closer to each other.}
                 \label{fig:2d-potential-multi}
+                \end{center}
             \end{figure}
 
             As you can see, the area between the two balls becomes gradually lit up.
@@ -120,10 +126,12 @@
             We will not go into the details of how we implemented physics and the illumination model, as they are out of the focus of this report.
 
     \section{Result}
-        \begin{figure}[ht]
+        \begin{figure}[H]
+            \begin{center}
             \includegraphics[width=\linewidth]{img/result-animation.png}
             \caption{A concept of 2 metaballs in 2D. Every frame shows the two balls moving closer to each other.}
             \label{fig:result-animation}
+        \end{center}
         \end{figure}
 
         An animated video can be found here:
