@@ -77,11 +77,19 @@
 
             If one were to draw the resulting field of a single metaball around the origin, it might look like figure 1, where the brightness of the color indicates the influence of the field at that point.
             
-            <PIC HERE>
+            \begin{figure}[ht]
+                \includegraphics[width=\linewidth]{img/2d-potential.png}
+                \caption{A concept of the inverse square function in 2D}
+                \label{fig:2d-potential}
+            \end{figure}
 
             A similar model for two metaballs, with their potential fields partially overlapping in different stages, is shown in figure 2.
             
-            <PIC HERE>
+            \begin{figure}[ht]
+                \includegraphics[width=\linewidth]{img/2d-potential-multi.png}
+                \caption{A concept of 2 metaballs in 2D. Every frame shows the two balls moving closer to each other.}
+                \label{fig:2d-potential-multi}
+            \end{figure}
 
             As you can see, the area between the two balls becomes gradually lit up.
             The intersection between the two potetial fields becomes brighter as the two balls move closer, and at some point the center point between the balls will have a strength that is above our threshold. This effect will propagate outwards as the balls move closer, and we will use this later to make the balls appear as if they blob together in 3D.
