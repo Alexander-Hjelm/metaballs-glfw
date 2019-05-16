@@ -38,7 +38,6 @@
 
     \maketitle
 
-
     \section{Summary}
     Hippety hoppety, Women are property! >:)
     
@@ -76,7 +75,6 @@
             This function is also used to model the strength of electrical fields in electromagnetics, which is why we choose to label it as the metaball potetial field function.
             [http://www.geisswerks.com/ryan/BLOBS/blobs.html]
 
-
             If one were to draw the resulting field of a single metaball around the origin, it might look like figure 1, where the brightness of the color indicates the influence of the field at that point.
             
             <PIC HERE>
@@ -90,7 +88,6 @@
 
         \subsection{Marching cubes}
             Voxel shader with an array of predefined cube shapes. The shader selects the relevant cube shape depending on how the neighbourhood looks with respect to the potential.
-    
 
     \section{Implementation}
 
@@ -103,7 +100,9 @@
         \end{lstlisting}
 
         \subsection{Misc}
-            For the purpose of creating a nice demo, we created a fragment shader with basic Phong illumination, in order to give the animation more depth. We also added a physics model to the balls which consists of outer forces due to gravity and a repelling force between each pair of balls when they are close to each other, to prevent them from accumulating in one place. We also modelled the bounciness of the floor and walls of our simulation domain, in order to keep the balls confined and in motion for as long as possible.
+            For the purpose of creating a nice demo, we created a fragment shader with basic Phong illumination, in order to give the animation more depth.
+            We also added a physics model to the balls which consists of outer forces due to gravity and a repelling force between each pair of balls when they are close to each other, to prevent them from accumulating in one place.
+            We also modelled the bounciness of the floor and walls of our simulation domain, in order to keep the balls confined and in motion for as long as possible.
 
             We will not go into the details of how we implemented physics and the illumination model, as they are out of the focus of this report.
 
@@ -113,26 +112,23 @@
 
     \section{Conslusions}
     
-        Particle model
+        \subsection{Rendering model}
+        The voxel grid size is the performance bottleneck.
+
+        \subsection{Particle model}
     	It seems that the industry standard for fluid simulation in high quality games and video is the Smoothed Particle Hydrodynamics model with Ellipsoid Splatting rendering.
         Right now we are brute forcing the potential field over all particles
         (Possible conslusion: in line with SPH: spatial subdivision of metaball positions will allow for more balls, but not yield the neccessary performance increase that is needed to simulate particles in a high-resolution domain)
 
-        Rendering model
-        The voxel grid size is the performance bottleneck.
-
-
-        Yet another performance problem comes from the fact that the division step makes our metaball 
+        Yet another performance problem comes from the fact that the division step in our metaball potential function is computationally expensive.
         Ryan Geiss (whose tutorial on the metaball isosurface model we used) came with a suggestion for an approximate polynomial function which should in theory be faster on the GPU. His suggested function was:
 
         $[g(r) = r^4 - r^2 + 0.25]$
 
         This potential field function also has the neat property that it evaluates to 0 at $r=\frac{1}{\sqrt{2}}$, which means that you could do spatial optimization by only evaulating the points that fall within the radius of $r=\frac{1}{\sqrt{2}}$ of a singe metaball's center.
 
-[http://www.geisswerks.com/ryan/BLOBS/blobs.html]
+        [http://www.geisswerks.com/ryan/BLOBS/blobs.html]
 
-Our prediction is that this would yield a similar performance increase to implementing a naive spacial subdivision, but we are still not solving the problem that the geometry shader itself is expensive.
-
-
+        Our prediction is that this would yield a similar performance increase to implementing a naive spacial subdivision, but we are still not solving the problem that the geometry shader itself is expensive.
 
 \end{document}
