@@ -129,11 +129,28 @@
         An animated video can be found here:
         \url{https://youtu.be/jmScNqchXs0}
 
-    \section{Conslusions}
+    \section{Conclusions}
     
         \subsection{Rendering model}
         The voxel grid size is the performance bottleneck.
-        %TODO: Include a fps comparison of metaball program and only the voxel shader. How big can we make the voxel grid in both cases?
+
+        Comparison.
+        Number of metaballs vs the maximum voxel grid size before the framerate drops below 30:
+
+        \begin{tabular}{ l | c | r }
+          50 & 120 \\
+          20 & 160 \\
+          5 & 200 \\
+        \end{tabular}
+
+        Disabling the metaball filter completely, and just running the voxel shader yields a maximum voxel grid size of 310 units before the framrate drops below 30.
+
+        The test was run on a NVIDIA Geforce GTX 1050 Ti.
+
+        Conclusion: The geometry shader itself can run with a voxel grid size in the order of 100-200 units at 60 fps, and up to 300 units at 30 fps.
+        For our purpose, this can be used to create a nice looking dynamic fluid on a small simulation domain, or a very chunky fluid on a medium-large sized simulation domain.
+        To render an impressive fluid in a medium sized voxel grid, it would be nice if we could optimize the particle model so that we could run in the order of 100 particles at a voxel grid size of 200.
+        The following section will discuss some ideas for how this could be achieved in theory.
 
         \subsection{Particle model}
     	It seems that the industry standard for fluid simulation in high quality games and video is the Smoothed Particle Hydrodynamics model with Ellipsoid Splatting rendering.
