@@ -68,13 +68,15 @@
 
     The metaballs model is defined as a 3D isosurface, and can be rendered using the same methods that are common to isosurfaces.
 
-    The most common methods for rendering metaballs are ray-tracing for still image and animations, and the marching cubes algorithm for real time. \href{https://steve.hollasch.net/cgindex/misc/metaballs.html}{https://steve.hollasch.net/cgindex/misc/metaballs.html}    
+    The most common methods for rendering metaballs are ray-tracing for still image and animations, and the marching cubes algorithm for real time.
+    \cite{heckbert92}
+
     \begin{figure}[H]
     	\centering
     	\begin{minipage}[b]{0.4\textwidth}
     		\centering
 	        \includegraphics[width=0.5\textwidth]{img/metaballs-concept.png}
-    	    \caption{A conceptual visualisation of how metaballs work. 1 shows two metaballs gradually merging, and 2 shows the influence of a negative metaball on a positive metaball.} \href{https://en.wikipedia.org/wiki/File:Metaballs.png}{https://en.wikipedia.org/wiki/File:Metaballs.png}
+            \caption{A conceptual visualisation of how metaballs work. 1 shows two metaballs gradually merging, and 2 shows the influence of a negative metaball on a positive metaball. \cite{wiki07}}
 	        \label{fig:metaballs-concept}
 		\end{minipage}
     \end{figure}
@@ -99,7 +101,7 @@
             This function describes a field where each ball has an influence point with quadratic falloff.
             For any point $\vec{p}$ in 3D, and for any ball's position $\vec{b}$, the influence of that ball on the point $\vec{p}$ will be proporitonal to $|\vec{p} - \vec{b}|^2$.
             This function is also used to model the strength of electrical fields in electromagnetics, which is why we choose to label it as the metaball potetial field function.
-            [http://www.geisswerks.com/ryan/BLOBS/blobs.html]
+            \cite{geiss00}
 
             If one were to draw the resulting field of a single metaball around the origin, it might look like figure 2, where the brightness of the color indicates the influence of the field at that point.
             
@@ -134,6 +136,11 @@
 
         We have used GLFW and GLSL. GLFW is a cross-platform utility library for creating window and OpenGL context, and we will use it for handling both window and input events. While GLFW handles all the high-level program logic, our project focuses on the low-level rendering. Mainly we will use GLFW to manage the OpenGL context. GLSL is the shading language for OpenGL which enables developers to control over the rendering pipeline. We will use GLSL to write our shader programs.
         
+        The metaball positions are updated on the CPU, and sent to the GPU on every update frame. We send all data about the metaballs as a GLFW Texture2D object. For n balls, the texture has the size n by 1, and each pixel encodes that balls position as its RGB values, and the radius as its alpha value. This proved ideal. Since Texture2D objects can be sent multiple times with different sizes, we can dynamically set the metaball count and the positions of each particles. Furthermore, since the Texture2D is easily iterated through on the GPU by using a Sampler object, it was trivial to extract the ball position and radius from each pixel.
+
+        To limit the pressure that the program puts on the CPU, we limited the CPU framterate to 60, by using a main loop that only runs the animation calculations and updates the GPU at fixed intervals.
+
+
         \subsection{Marching cubes}
         	\begin{minipage}{\linewidth}
 			    \begin{lstlisting}
@@ -154,7 +161,7 @@
         \begin{figure}[H]
         	\begin{minipage}[b]{0.5\textwidth}
 	            \includegraphics[width=\linewidth]{img/result-animation.png}
-				\caption{A concept of 2 metaballs in 2D. Every frame shows the two balls moving closer to each other.}
+				\caption{Screenshot of the final animation, taken at fixed intervals. Note that the camera view is rotating around the model at a constant speed.}
 				\label{fig:result-animation}
         	\end{minipage}
         \end{figure}
@@ -195,9 +202,33 @@
 
         This potential field function also has the neat property that it evaluates to 0 at $r=\frac{1}{\sqrt{2}}$, which means that you could do spatial optimization by only evaulating the points that fall within the radius of $r=\frac{1}{\sqrt{2}}$ of a singe metaball's center.
 
-        [http://www.geisswerks.com/ryan/BLOBS/blobs.html]
+        \cite{geiss00}
 
         Our prediction is that this would yield a similar performance increase to implementing a naive spacial subdivision, but we are still not solving the problem that the geometry shader itself is expensive.
 
 	\end{multicols}
+
+\begin{thebibliography}{9}
+
+\bibitem{geiss00}
+  Ryan Geiss,
+  \textit{Metaballs (also known as: Blobs)},
+  October,
+  2000.
+  \\
+  http://www.geisswerks.com/ryan/BLOBS/blobs.html
+
+\bibitem{heckbert92}
+  Paul Heckbert,
+  \textit{Intro to Metaballs},
+  November,
+  1992.
+  \\
+  https://steve.hollasch.net/cgindex/misc/metaballs.html
+
+\bibitem{wiki07}
+  Image from: https://en.wikipedia.org/wiki/File:Metaballs.png
+
+\end{thebibliography}
+
 \end{document}
