@@ -1,9 +1,24 @@
 \documentclass{article}
 
 \usepackage{graphicx}
-\usepackage{listings}
+\usepackage{listings, lstautogobble}
 \usepackage{color}
 \usepackage{hyperref}
+\usepackage{multicol}
+\usepackage{float}
+
+% paper margin
+\usepackage{geometry}
+\geometry{
+	a4paper,
+	total={170mm,257mm},
+	left=20mm,
+	top=20mm,
+}
+
+% author
+\def\firstauthor{First author}
+\def\secondauthor{Second author}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
@@ -12,6 +27,7 @@
 \lstset{frame=tb,
   language=C++,
   aboveskip=3mm,
+  autogobble=true,
   belowskip=3mm,
   showstringspaces=false,
   columns=flexible,
@@ -29,14 +45,22 @@
 \begin{document}
 
     \title{%
-      Metaballs in GLFW \\
-      \large DD2323 Project Report \\}
-
-    \author{Alexander Hjelm (alhjelm@kth.se), Tsz Kin Chan (XXXXXXXXXXXXXXXXx@kth.se)}
+    	\textbf{SPH Fluid Simulation with Metaballs} \\
+    	\large DD2323 Project Report \\}
+   
+	\author{
+		Alexander Hjelm\\
+		\texttt{alhjelm@kth.se}
+		\and
+		Tsz Kin Chan\\
+		\texttt{tkch@kth.se}
+	}
 
     \date{\today}
 
     \maketitle
+    
+    \begin{multicols}{2}
 
     \section{Summary}
     Hippety hoppety, Women are property! >:)
@@ -47,19 +71,19 @@
     The metaballs rendering technique was invented by Jim Blinn in the early 1980s, and has been a very common demo effect since the 1990s.
 
     The metaballs model is defined as a 3D isosurface, and can be rendered using the same methods that are common to isosurfaces.
-    The most common methods for rendering metaballs are ray-tracing for still image and animations, and the marching cubes algorithm for real time.
+    The most common methods for rendering metaballs are ray-tracing for still image and animations, and the marching cubes algorithm for real time. \href{https://steve.hollasch.net/cgindex/misc/metaballs.html}{https://steve.hollasch.net/cgindex/misc/metaballs.html}    
+    \begin{figure}[H]
+    	\centering
+    	\begin{minipage}[b]{0.4\textwidth}
+    		\centering
+	        \includegraphics[width=0.5\textwidth]{img/metaballs-concept.png}
+    	    \caption{A conceptual visualisation of how metaballs work. 1 shows two metaballs gradually merging, and 2 shows the influence of a negative metaball on a positive metaball.} \href{https://en.wikipedia.org/wiki/File:Metaballs.png}{https://en.wikipedia.org/wiki/File:Metaballs.png}
+	        \label{fig:metaballs-concept}
+		\end{minipage}
+    \end{figure}
 
-    [https://steve.hollasch.net/cgindex/misc/metaballs.html]
-
-    Pic:
-            \begin{figure}[ht]
-                \includegraphics[width=\linewidth]{img/metaballs-concept.png}
-                \caption{A conceptual visualisation of how metaballs work. Part 1 shows two metaballs gradually merging, and part 2 shows the influence of a negative metaball on a positive metaball.}
-                \label{fig:metaballs-concept}
-            \end{figure}
-    [https://en.wikipedia.org/wiki/File:Metaballs.png]
-
-    Using low-level graphics programming, we have programmed and rendered a real time, dynamic fluid using the metaballs with the marching cubes technique. The fluid particles use a basic physics model to collide with each other and the environment.
+	Using low-level graphics programming, we have programmed and rendered a real time, dynamic fluid using the metaballs with the marching cubes technique. The fluid particles use a basic physics model to collide with each other and the environment.
+	
     This report will present the theory behind the metaballs rendering technique and show how it can be implemented as a real time simulation.
 
     \section{Theory}
@@ -82,53 +106,63 @@
 
             If one were to draw the resulting field of a single metaball around the origin, it might look like figure 2, where the brightness of the color indicates the influence of the field at that point.
             
-            \begin{figure}[ht]
-                \includegraphics[width=\linewidth]{img/2d-potential.png}
-                \caption{A concept of the inverse square function in 2D}
-                \label{fig:2d-potential}
-            \end{figure}
-
             A similar model for two metaballs, with their potential fields partially overlapping in different stages, is shown in figure 3.
             
-            \begin{figure}[ht]
-                \includegraphics[width=\linewidth]{img/2d-potential-multi.png}
-                \caption{A concept of 2 metaballs in 2D. Every frame shows the two balls moving closer to each other.}
-                \label{fig:2d-potential-multi}
+            \begin{figure}[H]
+            	\centering
+            	\begin{minipage}[b]{0.2\textwidth}
+            		\centering
+            		\includegraphics[width=\textwidth]{img/2d-potential.png}
+            		\caption{A concept of the inverse square function in 2D}
+		            \label{fig:2d-potential}
+            	\end{minipage}
+            \end{figure}
+        
+        	\begin{figure}[H]
+        		\centering
+            	\begin{minipage}[b]{0.4\textwidth}
+            		\includegraphics[width=\textwidth]{img/2d-potential-multi.png}
+            		\caption{A concept of 2 metaballs in 2D. Every frame shows the two balls moving closer to each other.}
+            		\label{fig:2d-potential-multi}
+            	\end{minipage}
             \end{figure}
 
             As you can see, the area between the two balls becomes gradually lit up.
-            The intersection between the two potetial fields becomes brighter as the two balls move closer, and at some point the center point between the balls will have a strength that is above our threshold. This effect will propagate outwards as the balls move closer, and we will use this later to make the balls appear as if they blob together in 3D.
+            The intersection between two potential fields becomes brighter as the two balls move closer, and at some point the center point between the balls will have a strength that is above our threshold. This effect will propagate outwards as the balls move closer, and we will use this later to make the balls appear as if they blob together in 3D.
 
         \subsection{Marching cubes}
-            Voxel shader with an array of predefined cube shapes. The shader selects the relevant cube shape depending on how the neighbourhood looks with respect to the potential.
+            Voxel shader with an array of predefined cube shapes. The shader selects the relevant cube shape depending on how the neighborhood looks with respect to the potential.
 
     \section{Implementation}
 
-        We have used GLFW and GLSL. GLFW is a utility library for working with OpenGL, and we will use it as an interface between the high-level program logic and the low-level rendering. Mainly we will use GLFW to manage the OpenGL context and make GPU drawcalls. GLSL is the OpenGL shading language that gives developers control over the rendering pipeline. We will use GLSL to write our shader programs.
-
-        \begin{lstlisting}
-        private void Test(){
-            int a = 1;
-        }
-        \end{lstlisting}
+        We have used GLFW and GLSL. GLFW is a cross-platform utility library for creating window and OpenGL context, and we will use it for handling both window and input events. While GLFW handles all the high-level program logic, our project focuses on the low-level rendering. Mainly we will use GLFW to manage the OpenGL context. GLSL is the shading language for OpenGL which enables developers to control over the rendering pipeline. We will use GLSL to write our shader programs.
+        
+        \subsection{Marching cubes}
+        	\begin{minipage}{\linewidth}
+			    \begin{lstlisting}
+					private void Test(){
+					int a = 1;
+					}
+				\end{lstlisting}
+        	\end{minipage}
 
         \subsection{Misc}
             For the purpose of creating a nice demo, we created a fragment shader with basic Phong illumination, in order to give the animation more depth.
             We also added a physics model to the balls which consists of outer forces due to gravity and a repelling force between each pair of balls when they are close to each other, to prevent them from accumulating in one place.
-            We also modelled the bounciness of the floor and walls of our simulation domain, in order to keep the balls confined and in motion for as long as possible.
+            We also modeled the bounciness of the floor and walls of our simulation domain, in order to keep the balls confined and in motion for as long as possible.
 
             We will not go into the details of how we implemented physics and the illumination model, as they are out of the focus of this report.
 
     \section{Result}
-        \begin{figure}[ht]
-            \includegraphics[width=\linewidth]{img/result-animation.png}
-            \caption{A concept of 2 metaballs in 2D. Every frame shows the two balls moving closer to each other.}
-            \label{fig:result-animation}
+        \begin{figure}[H]
+        	\begin{minipage}[b]{0.5\textwidth}
+	            \includegraphics[width=\linewidth]{img/result-animation.png}
+				\caption{A concept of 2 metaballs in 2D. Every frame shows the two balls moving closer to each other.}
+				\label{fig:result-animation}
+        	\end{minipage}
         \end{figure}
-
         An animated video can be found here:
         \url{https://youtu.be/jmScNqchXs0}
-
     \section{Conclusions}
     
         \subsection{Rendering model}
@@ -168,4 +202,5 @@
 
         Our prediction is that this would yield a similar performance increase to implementing a naive spacial subdivision, but we are still not solving the problem that the geometry shader itself is expensive.
 
+	\end{multicols}
 \end{document}
