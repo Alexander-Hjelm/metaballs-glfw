@@ -176,14 +176,14 @@
     
         \subsection{Rendering model}
         
+        One of our main obstacles with the simulation was that we could not run it with a high enough voxel grid count to render an impressive looking fluid on a large simulation domain.
+        The cell count of the voxel grid is simply the resolution at which the fluid can be renderered.
+        A high enough cell count will make the fluid appear smooth and seamless, but as the cell count decreases, the sharp edges of the mesh will become visible and the mesh as a whole will appear coarse and chunky.
 
-        In order 
-
-        The voxel grid size is the performance bottleneck.
-
-        %TODO: Some text to bind the performance test together
-        Comparison.
-        Number of metaballs vs the maximum voxel grid size before the framerate drops below 30:
+        In order to find out wether the voxel shader or the particle model were the performance bottleneck, we ran a series of tests of the same simulation, with varying numbers of particles.
+        The test was run on a NVIDIA Geforce GTX 1050 Ti.
+        For each test we noted the maximum voxel cell count we could use while still running the simulation reliably above 30 frames per second.
+        The following table lists the mumber of metaballs vs the maximum voxel grid cell count we could use before the framerate would drop below 30 fps:
 
         \begin{tabular}{ l | c | r }
           50 & 120 \\
@@ -191,12 +191,9 @@
           5 & 200 \\
         \end{tabular}
 
-        Disabling the metaball filter completely, and just running the voxel shader yields a maximum voxel grid size of 310 units before the framrate drops below 30.
-
-        The test was run on a NVIDIA Geforce GTX 1050 Ti.
-
+        Finally: disabling the metaball filter completely, and just running the voxel shader itself, yielded a maximum voxel cell count of 310 units before the framrate dropped below 30.
         Our conclusion is that the geometry shader itself, without any particles, can run with a voxel grid size in the order of 100-200 units at 60 fps, and up to 300 units at 30 fps.
-        For our purpose, this can be used to create a nice looking dynamic fluid on a small simulation domain, or a very chunky looking fluid on a medium sized to large sized simulation domain.
+        For our purpose, this can be used to create a nice looking dynamic fluid on a small simulation domain, or a very chunky looking fluid on a medium sized to large sized simulation domain, or a fluid with very few particles.
         To render an impressive fluid in a medium sized voxel grid, it would be nice if we could optimize the particle model so that we could run in the order of 100 particles at a voxel grid size of 200.
         The following section about the particle model will discuss some ideas for how this could be achieved in theory.
 
