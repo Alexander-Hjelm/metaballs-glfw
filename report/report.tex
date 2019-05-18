@@ -59,10 +59,12 @@
     \begin{multicols}{2}
 
     \section{Summary}
+    %TODO: Write a summary
     Hippety hoppety, Women are property! >:)
     
     \section{Introduction}
     
+    %TODO: Format this to a text
     Metaballs are soft, organic-looking 3D objects that appear to blob together when they are very close, and can be used to simulate dynamic fluids if using many particles on a large simulation domain. 
     The metaballs rendering technique was invented by Jim Blinn in the early 1980s, and has been a very common demo effect since the 1990s.
 
@@ -158,6 +160,7 @@
             We will not go into the details of how we implemented physics and the illumination model, as they are out of the focus of this report.
 
     \section{Result}
+    %TODO: Some text to bind the results section together
         \begin{figure}[H]
         	\begin{minipage}[b]{0.5\textwidth}
 	            \includegraphics[width=\linewidth]{img/result-animation.png}
@@ -172,6 +175,7 @@
         \subsection{Rendering model}
         The voxel grid size is the performance bottleneck.
 
+        %TODO: Some text to bind the performance together
         Comparison.
         Number of metaballs vs the maximum voxel grid size before the framerate drops below 30:
 
@@ -191,6 +195,7 @@
         The following section will discuss some ideas for how this could be achieved in theory.
 
         \subsection{Particle model}
+        %TODO: Finalize this text
     	It seems that the industry standard for fluid simulation in high quality games and video is the Smoothed Particle Hydrodynamics model with Ellipsoid Splatting rendering.
         Right now we are brute forcing the potential field over all particles
         (Possible conslusion: in line with SPH: spatial subdivision of metaball positions will allow for more balls, but not yield the neccessary performance increase that is needed to simulate particles in a high-resolution domain)
@@ -198,6 +203,7 @@
         Yet another performance problem comes from the fact that the division step in our metaball potential function is computationally expensive.
         Ryan Geiss (whose tutorial on the metaball isosurface model we used) came with a suggestion for an approximate polynomial function which should in theory be faster on the GPU. His suggested function was:
 
+        %TODO: Center this
         $[g(r) = r^4 - r^2 + 0.25]$
 
         This potential field function also has the neat property that it evaluates to 0 at $r=\frac{1}{\sqrt{2}}$, which means that you could do spatial optimization by only evaulating the points that fall within the radius of $r=\frac{1}{\sqrt{2}}$ of a singe metaball's center.
