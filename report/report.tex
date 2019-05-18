@@ -63,13 +63,10 @@
     Hippety hoppety, Women are property! >:)
     
     \section{Introduction}
-    
-    %TODO: Format this to a text
+
     Metaballs are soft, organic-looking 3D objects that appear to blob together when they are very close, and can be used to simulate dynamic fluids if using many particles on a large simulation domain. 
     The metaballs rendering technique was invented by Jim Blinn in the early 1980s, and has been a very common demo effect since the 1990s.
-
     The metaballs model is defined as a 3D isosurface, and can be rendered using the same methods that are common to isosurfaces.
-
     The most common methods for rendering metaballs are ray-tracing for still image and animations, and the marching cubes algorithm for real time.
     \cite{heckbert92}
 
@@ -160,7 +157,13 @@
             We will not go into the details of how we implemented physics and the illumination model, as they are out of the focus of this report.
 
     \section{Result}
-    %TODO: Some text to bind the results section together
+        Figure 4 shows three still images of our final rendering. 
+        An animated video can be found here:
+        \url{https://youtu.be/jmScNqchXs0}.
+
+        Both the figure and the video show the same real time simlution, consisting of 100 particles and a voxel grid size of 80 units.
+        The same physics and lightning models that were mentioned at the end of section 4 have both been applied.
+
         \begin{figure}[H]
         	\begin{minipage}[b]{0.5\textwidth}
 	            \includegraphics[width=\linewidth]{img/result-animation.png}
@@ -168,14 +171,17 @@
 				\label{fig:result-animation}
         	\end{minipage}
         \end{figure}
-        An animated video can be found here:
-        \url{https://youtu.be/jmScNqchXs0}
+
     \section{Conclusions}
     
         \subsection{Rendering model}
+        
+
+        In order 
+
         The voxel grid size is the performance bottleneck.
 
-        %TODO: Some text to bind the performance together
+        %TODO: Some text to bind the performance test together
         Comparison.
         Number of metaballs vs the maximum voxel grid size before the framerate drops below 30:
 
@@ -189,28 +195,42 @@
 
         The test was run on a NVIDIA Geforce GTX 1050 Ti.
 
-        Conclusion: The geometry shader itself can run with a voxel grid size in the order of 100-200 units at 60 fps, and up to 300 units at 30 fps.
-        For our purpose, this can be used to create a nice looking dynamic fluid on a small simulation domain, or a very chunky fluid on a medium-large sized simulation domain.
+        Our conclusion is that the geometry shader itself, without any particles, can run with a voxel grid size in the order of 100-200 units at 60 fps, and up to 300 units at 30 fps.
+        For our purpose, this can be used to create a nice looking dynamic fluid on a small simulation domain, or a very chunky looking fluid on a medium sized to large sized simulation domain.
         To render an impressive fluid in a medium sized voxel grid, it would be nice if we could optimize the particle model so that we could run in the order of 100 particles at a voxel grid size of 200.
-        The following section will discuss some ideas for how this could be achieved in theory.
+        The following section about the particle model will discuss some ideas for how this could be achieved in theory.
 
         \subsection{Particle model}
-        %TODO: Finalize this text
-    	It seems that the industry standard for fluid simulation in high quality games and video is the Smoothed Particle Hydrodynamics model with Ellipsoid Splatting rendering.
-        Right now we are brute forcing the potential field over all particles
-        (Possible conslusion: in line with SPH: spatial subdivision of metaball positions will allow for more balls, but not yield the neccessary performance increase that is needed to simulate particles in a high-resolution domain)
+        It seems that the industry standard for fluid simulation in high quality games and video is the Smoothed Particle Hydrodynamics (SPH) model with Ellipsoid Splatting rendering.
+        The SPH model uses nearest neighbour search to find out how a particle should collide.
+        Ryan L. Guy presented his SPH implementation in a paper for the University of Virginia. He profiled his simulation times, and from the results we can see that the majority of the simulation time (around 75\%-85\%) is spent in the nearest neighbour search.
+        Thus the goal for the particle model must be to optimize the nearest neighbour search for all particles.
+        Guy has done this by implementing a spatial grid that functions as a lookup table for the particles.
+        Any particle will begin its nearest neighbour search in the grid cell in which it is contained, and continues to search through the nearest 26 cells until the nearest neighbour is found.
+        The fixed grid size was set to the one smoothing radius of the particle system, which is the maximum distance at which any two particles will interact.
+        \cite{guy15}
+
+        In comparison with our implementation, currently we are very much brute forcing when calculating the potential field over all particles.
+        For each voxel grid cell, all particles and their influences on that point are taken into account, even if they are so far away that their contribution of the field is negligable.
+        We can however use Guy's idea of spatial subdivision, by assigning the particles to their own grid cells, to detemine which range of particles should realistically have influence over a given point, before iterating through them 
+        We imagine implementing this as a spatial structure that is embedded in the texture that sends the particle positions to the GPU.
+        Each Y-cooridate of the texture could represent a grid cell, and all pixels on that column would still represent the particles that are in that cell, their positions and sizes.
+        Even after transforming the 3D grid to a linear structure one could simply define a lookup function that continues the nearest neighbour search in the neighbouring cells, and terminating after a certain depth if no neighbour particles are found.
+        We could very well experiment with different values of the smoothing radius and thus the fixed grid size, but a good initial guess might be the radius from a particle center at which the potential field evaluates to some low threshold, let us say 0.01. 
+        This form of spatial subdivision would allow for more particles in the simulation, but since the voxel shader itself cannot run reliably with a grid size above 200-300 units, it would not yield the neccessary performance increase that is needed to simulate particles in a high-resolution domain.
 
         Yet another performance problem comes from the fact that the division step in our metaball potential function is computationally expensive.
-        Ryan Geiss (whose tutorial on the metaball isosurface model we used) came with a suggestion for an approximate polynomial function which should in theory be faster on the GPU. His suggested function was:
+        Ryan Geiss (whose tutorial on the metaball isosurface model we used for this project) came with a suggestion for an approximate polynomial function which should in theory be faster on the GPU. His suggested function was:
 
-        %TODO: Center this
+        \begin{center}
         $[g(r) = r^4 - r^2 + 0.25]$
+        \end{center}
 
         This potential field function also has the neat property that it evaluates to 0 at $r=\frac{1}{\sqrt{2}}$, which means that you could do spatial optimization by only evaulating the points that fall within the radius of $r=\frac{1}{\sqrt{2}}$ of a singe metaball's center.
-
         \cite{geiss00}
 
-        Our prediction is that this would yield a similar performance increase to implementing a naive spacial subdivision, but we are still not solving the problem that the geometry shader itself is expensive.
+        Our prediction is that this would yield a similar performance increase to implementing a naive spacial subdivision, but we are still not solving the problem that the voxel shader itself is expensive.
+        To address this, our suggestion would be to redo the rendering model and instead use a point-based or ellipsoid-based splatting rendering method, which would be much more ideal for real time fluid simulation.
 
 	\end{multicols}
 
@@ -231,6 +251,14 @@
   1992.
   \\
   https://steve.hollasch.net/cgindex/misc/metaballs.html
+
+
+\bibitem{guy15}
+  Ryan Guy,
+  \textit{Smoothed Particle Hydrodynamics Fluid Simulation},
+  2015.
+  \\
+  http://rlguy.com/sphfluidsim/
 
 \bibitem{wiki07}
   Image from: https://en.wikipedia.org/wiki/File:Metaballs.png
