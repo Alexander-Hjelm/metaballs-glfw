@@ -4,7 +4,6 @@
 \usepackage{listings, lstautogobble}
 \usepackage{color}
 \usepackage{hyperref}
-\usepackage{multicol}
 \usepackage{float}
 
 % paper margin
@@ -12,14 +11,21 @@
 \geometry{
 	a4paper,
 	total={170mm,257mm},
-	left=20mm,
-	top=20mm,
+	left=14mm,
+	right=14mm,
+	top=14mm,
 }
 
+% multi-column
+\usepackage{multicol}
+\setlength{\columnsep}{1cm}
+
+% color definition
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
 \definecolor{mauve}{rgb}{0.58,0,0.82}
 
+% listing
 \lstset{frame=tb,
   language=C++,
   aboveskip=3mm,
@@ -40,18 +46,17 @@
 
 \begin{document}
 
-    \title{%
+	% paper title
+    \title{
     	\textbf{SPH Fluid Simulation with Metaballs} \\
     	\large DD2323 Project Report \\}
-   
-	\author{
+   	\author{
 		Alexander Hjelm\\
 		\texttt{alhjelm@kth.se}
 		\and
 		Tsz Kin Chan\\
 		\texttt{tkch@kth.se}
 	}
-
     \date{\today}
 
     \maketitle
@@ -63,25 +68,25 @@
     
     \section{Introduction}
     
-    Metaballs are soft, organic-looking 3D objects that appear to blob together when they are very close, and can be used to simulate dynamic fluids if using many particles on a large simulation domain. 
-    The metaballs rendering technique was invented by Jim Blinn in the early 1980s, and has been a very common demo effect since the 1990s.
-
-    The metaballs model is defined as a 3D isosurface, and can be rendered using the same methods that are common to isosurfaces.
-
-    The most common methods for rendering metaballs are ray-tracing for still image and animations, and the marching cubes algorithm for real time. \href{https://steve.hollasch.net/cgindex/misc/metaballs.html}{https://steve.hollasch.net/cgindex/misc/metaballs.html}    
-    \begin{figure}[H]
-    	\centering
-    	\begin{minipage}[b]{0.4\textwidth}
-    		\centering
-	        \includegraphics[width=0.5\textwidth]{img/metaballs-concept.png}
-    	    \caption{A conceptual visualisation of how metaballs work. 1 shows two metaballs gradually merging, and 2 shows the influence of a negative metaball on a positive metaball.} \href{https://en.wikipedia.org/wiki/File:Metaballs.png}{https://en.wikipedia.org/wiki/File:Metaballs.png}
-	        \label{fig:metaballs-concept}
-		\end{minipage}
-    \end{figure}
-
-	Using low-level graphics programming, we have programmed and rendered a real time, dynamic fluid using the metaballs with the marching cubes technique. The fluid particles use a basic physics model to collide with each other and the environment.
-
-    This report will present the theory behind the metaballs rendering technique and show how it can be implemented as a real time simulation.
+	    Metaballs are soft, organic-looking 3D objects that appear to blob together when they are very close, and can be used to simulate dynamic fluids if using many particles on a large simulation domain. 
+	    The metaballs rendering technique was invented by Jim Blinn in the early 1980s, and has been a very common demo effect since the 1990s.
+	
+	    The metaballs model is defined as a 3D isosurface, and can be rendered using the same methods that are common to isosurfaces.
+	
+	    The most common methods for rendering metaballs are ray-tracing for still image and animations, and the marching cubes algorithm for real time. \href{https://steve.hollasch.net/cgindex/misc/metaballs.html}{https://steve.hollasch.net/cgindex/misc/metaballs.html}    
+	    \begin{figure}[H]
+	    	\centering
+	    	\begin{minipage}[b]{0.5\textwidth}
+	    		\centering
+		        \includegraphics[width=0.4\textwidth]{img/metaballs-concept.png}
+	    	    \caption{A conceptual visualisation of how metaballs work. 1 shows two metaballs gradually merging, and 2 shows the influence of a negative metaball on a positive metaball.} \href{https://en.wikipedia.org/wiki/File:Metaballs.png}{https://en.wikipedia.org/wiki/File:Metaballs.png}
+		        \label{fig:metaballs-concept}
+			\end{minipage}
+	    \end{figure}
+	
+		Using low-level graphics programming, we have programmed and rendered a real time, dynamic fluid using the metaballs with the marching cubes technique. The fluid particles use a basic physics model to collide with each other and the environment.
+	
+	    This report will present the theory behind the metaballs rendering technique and show how it can be implemented as a real time simulation.
 
     \section{Theory}
 
@@ -128,7 +133,21 @@
             The intersection between two potential fields becomes brighter as the two balls move closer, and at some point the center point between the balls will have a strength that is above our threshold. This effect will propagate outwards as the balls move closer, and we will use this later to make the balls appear as if they blob together in 3D.
 
         \subsection{Marching cubes}
-            Voxel shader with an array of predefined cube shapes. The shader selects the relevant cube shape depending on how the neighborhood looks with respect to the potential.
+			Marching cubes is a well-known algorithm for constructing a polygonal mesh of an isosurface form a given scalar field. It was first published in the 1987 SIGGRAPH by William E. Lorensen and Harvey E. Cline, and was highly adopted in medical visualization.
+			
+			This algorithm takes a scalar field as an input, and output a list of triangles representing the isosurface. It iterates through the scalar field and calculate all corresponding value for each neighboring vertices in a voxel. Then depending on whether the value of neighbor vertices fall in or out of the isolevel, a list of triangle are generated according to the configuration. Since there are 8 vertices in a voxel, there are a total of 256 configurations of polygon placement as shown in figure 4. By combining all triangles generated within the scalar field, we can obtain the approximated polygonal mesh as a whole. 
+			
+			\begin{figure}[H]
+				\centering
+				\begin{minipage}[b]{0.4\textwidth}
+					\includegraphics[width=\textwidth]{img/marching-cubes-config.png}
+					\caption{Marching cubes configurations}
+					\label{fig:marching-cubes-config}
+				\end{minipage}
+			\end{figure}
+		
+		\subsection{Smoothed Particle Hydrodynamic}
+			Smoothed Particle Hydrodynamic (SPH) is a common computational method for simulating fluid flow on a machine. It was first published by Monaghan, Gingold and Lucy in 1977. In a SPH simulation, each fluid particle is interacting with its neighboring particle depending on its pressure, density, and velocity given a finite boundary around the particle. A particle's density is denoted as $$p_i=\sum_{j} m_jW_{ij}$$ where $W_{ij}$ can be any smoothing kernel. The pressure is then calculated with the ideal gas law in thermodynamics, written as $P=K(p-p_0)$. With the found density and pressure of a particle, we can find its acceleration by the following equation, $$a_i=-\sum_{j} \frac{m_j}{m_i}\frac{P_i+P_j}{2p_ip_j}\nabla W_{ij}\hat{r}_{ij}$$ where $\nabla W_{ij}$ is another smoothing kernel and $\hat{r}_{ij}$ is the normalized vector of a surrounding particle to the current particle. Finally, the particle position is being updated according to the computed acceleration. 
 
     \section{Implementation}
 
@@ -142,6 +161,15 @@
 					}
 				\end{lstlisting}
         	\end{minipage}
+        
+		\subsection{Smoothed Particles Hydrodynamic}
+        \begin{minipage}{\linewidth}
+        	\begin{lstlisting}
+        	private void Test(){
+        	int a = 1;
+        	}
+        	\end{lstlisting}
+        \end{minipage}
 
         \subsection{Misc}
             For the purpose of creating a nice demo, we created a fragment shader with basic Phong illumination, in order to give the animation more depth.
