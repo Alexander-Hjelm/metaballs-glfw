@@ -92,19 +92,19 @@
 		The metaballs model is defined as a 3D isosurface, and can be rendered using the same methods that are common to isosurfaces. Most common methods for rendering metaballs are ray-tracing for still image and animations, and the marching cubes algorithm for real time.
 		\cite{heckbert92}
 
-	Using low-level graphics programming, we have programmed and rendered a real time, dynamic fluid using the metaballs with the marching cubes technique. The fluid particles use a basic physics model to collide with each other and the environment.
-
-    This report will present the theory behind the metaballs rendering technique and show how it can be implemented as a real time simulation.
+		Using low-level graphics programming, we have programmed and rendered a real time, dynamic fluid using the metaballs with the marching cubes technique. The fluid particles use a basic physics model to collide with each other and the environment. Since we will use metaballs for visualizing fluid particles, the words metaball and particle are interchangeable throughout the report.
+	
+	    This report will present the theory behind the metaballs rendering technique and show how it can be implemented as a real time simulation. 
     
-    \begin{figure}[H]
-    	\centering
-    	\begin{minipage}[b]{0.5\textwidth}
-    		\centering
-    		\includegraphics[width=0.3\textwidth]{img/metaballs-concept.png}
-    		\caption{A conceptual visualisation of how metaballs work. 1 shows two metaballs gradually merging, and 2 shows the influence of a negative metaball on a positive metaball. \cite{wiki07}}
-    		\label{fig:metaballs-concept}
-    	\end{minipage}
-    \end{figure}
+	    \begin{figure}[H]
+	    	\centering
+	    	\begin{minipage}[b]{0.5\textwidth}
+	    		\centering
+	    		\includegraphics[width=0.3\textwidth]{img/metaballs-concept.png}
+	    		\caption{A conceptual visualisation of how metaballs work. 1 shows two metaballs gradually merging, and 2 shows the influence of a negative metaball on a positive metaball. \cite{wiki07}}
+	    		\label{fig:metaballs-concept}
+	    	\end{minipage}
+	    \end{figure}
 
     \section{Theory}
 
@@ -164,8 +164,8 @@
 				\end{minipage}
 			\end{figure}
 		
-		\subsection{Smoothed Particle Hydrodynamic}
-			Smoothed Particle Hydrodynamic (SPH) is a common computational method for simulating fluid flow on a machine. It was first published by Monaghan, Gingold and Lucy in 1977. In a SPH simulation, each fluid particle is interacting with its neighboring particle depending on its pressure, density, and velocity given a finite boundary around the particle. A particle's density is denoted as $$p_i=\sum_{j} m_jW_{ij}$$ where $W_{ij}$ can be any smoothing kernel. The pressure is then calculated with the ideal gas law in thermodynamics, written as $P=K(p-p_0)$. With the found density and pressure of a particle, we can find its acceleration by the following equation, $$a_i=-\sum_{j} \frac{m_j}{m_i}\frac{P_i+P_j}{2p_ip_j}\nabla W_{ij}\hat{r}_{ij}$$ where $\nabla W_{ij}$ is another smoothing kernel and $\hat{r}_{ij}$ is the normalized vector of a surrounding particle to the current particle. Finally, the particle position is being updated according to the computed acceleration. 
+		\subsection{Smoothed Particle Hydrodynamics}
+			Smoothed Particle Hydrodynamics (SPH) is a common computational method for simulating fluid flow on a machine. It was first published by Monaghan, Gingold and Lucy in 1977. In a SPH simulation, each fluid particle is interacting with its neighboring particle depending on its pressure, density, and velocity given a finite boundary around the particle. A particle's density is denoted as $$p_i=\sum_{j} m_jW_{ij}$$ where $W_{ij}$ can be any smoothing kernel. The pressure is then calculated with the ideal gas law in thermodynamics, written as $P=K(p-p_0)$. With the found density and pressure of a particle, we can find its acceleration by the following equation, $$a_i=-\sum_{j} \frac{m_j}{m_i}\frac{P_i+P_j}{2p_ip_j}\nabla W_{ij}\hat{r}_{ij}$$ where $\nabla W_{ij}$ is another smoothing kernel and $\hat{r}_{ij}$ is the normalized vector of a surrounding particle to the current particle. Finally, the particle position is being updated according to the computed acceleration. 
 
     \section{Implementation}
 
@@ -179,7 +179,6 @@
 			\begin{algorithm}[H]
 				\KwIn{A voxel center position}
 				\KwOut{A triangle list representing the isosurface}
-
 				Corners[8] $\leftarrow$ Position of 8 voxel corners\;
 				\For{$i\leftarrow 0$ \KwTo $7$}{
 					\For{$j\leftarrow 0$ \KwTo $MetaballCount-1$}{
@@ -187,7 +186,7 @@
 						IsoValue[i] $\leftarrow$ Pixel.a / distance(Pixel.rgb, Corners[i])\;
 					}
 				}
-				LookUpIndex $\leftarrow$ 0\;
+				LookUpIndex $\leftarrow$ 0;
 				\For{$i\leftarrow 0$ \KwTo $7$}{
 					\If{IsoValue[i] $<$ IsoLevel}{
 						LookUpIndex $\leftarrow$ LookUpIndex + $2^i$\;
@@ -205,13 +204,12 @@
 					Triangle.normal $\leftarrow$ cross(Pt3-Pt1, Pt2-Pt1)\;
 					OutPrimitives.append(Triangle)\;
 				}
-			
 				\caption{Marching Cubes}
 			\end{algorithm}
         	
 			This geometry shader code takes in a voxel position and outputs the sequence of polygonal mesh of the isosurface. We have two input textures, one for triangle configurations look-up ($LookUpTex$), and one for the encoded information for our metaballs ($MetaballTex$). 
 			
-			From line 1 to 5, the isovalue for each corner vertices is evaluated according to the inverse quadratic equation. With all the isovalue calculated, we then have to figure out which cube configuration should be used. And it can be done by comparing each vertex to the threshold ($IsoLevel$) and construct a bitmap $LookUpIndex$, as shown in line 6 to 9. In line 10 and 11, we terminate the algorithm since the voxel is considered as entirely inside or outside of the surface if $LookUpIndex$ is 0 or 255. That means no polygonal mesh is needed to be rendered. After that, every vertices along the voxel edges are interpolated based on the isovalue of the two neighbor corners. 
+			From line 1 to 5, the isovalue for each corner vertices is evaluated according to the inverse quadratic equation. With all the isovalue calculated, we then have to figure out which cube configuration should be used. And it can be done by comparing each vertex to the threshold ($IsoLevel$) and construct a bitmap $LookUpIndex$, as shown in line 6 to 8. In line 9 and 10, we terminate the algorithm since the voxel is considered as entirely inside or outside of the surface if $LookUpIndex$ is 0 or 255. That means no polygonal mesh is needed to be rendered. After that, every vertices along the voxel edges are interpolated based on the isovalue of the two neighboring corners. 
 			
 			With the correct configuration index and vertices position, we can construct the triangle list that is going to be rendered. Noted that every single row in the $LookUpTex$ follows this layout:
 			\begin{minipage}{\linewidth}
@@ -219,16 +217,61 @@
 				{2, 8, 3, 2, 10, 8, 10, 9, 8, -1, -1, -1, -1, -1, -1, -1}
 				\end{lstlisting}
 			\end{minipage}
-			A row consists of 16 integers initialized with -1. Starting from the left, every three integers specify which three vertices along the edge make a triangle. There will be a maximum of 5 triangles in any cube configurations, leaving the last integer in the layout a padding space. From line 13 to 19, we query the suitable edge index from $LookUpTex$ and find its corresponding interpolated vertex position in $VertexList$ as the final triangle vertex position. Using the three vertices, we can calculated the face normal easily for later use in fragment shading stage. And finally push the triangle to the end of the output triangle stream. Repeat this process until there are no triangles needed to be added to the list. 
+			A row consists of 16 integers initialized with -1. Starting from the left, every three integers specify which three vertices along the edge make a triangle. There will be a maximum of 5 triangles in any cube configurations, leaving the last integer in the layout a padding space. From line 12 to 18, we query the suitable edge index from $LookUpTex$ and find its corresponding interpolated vertex position in $VertexList$ as the final triangle vertex position. Using the three vertices, we can calculated the face normal easily for later use in fragment shading stage. And finally push the triangle to the end of the output triangle stream. Repeat this process until there are no triangles needed to be added to the list. 
         
-		\subsection{Smoothed Particles Hydrodynamic}
+		\subsection{Smoothed Particles Hydrodynamics}
+			We followed the simplified version of SPH from the paper written by Ryan L. Guy. \cite{guy15} Given the basic governing equations for modeling fluid flow, we are able to visualize a more fluid-like interactions between our metaballs. This physical simulation is evaluated on the CPU every frame. The final particle position is then mapped to our GPU shader for visualization purpose. Here is a pseudo-code describing how particles are simulated using SPH: 
+			
+			\begin{algorithm}[H]
+				\KwData{$m := mass$, $P := pressure$, $p := density$, $a := acceleration$.}
+				\ForEach{ball $\in$ Metaballs}{
+					\ForEach{neighbor $\in Metaballs - \{ball\}$}{
+						Dist $\leftarrow$ distance(ball, neighbor)\;
+						$p_{ball} \leftarrow p_{ball} + m_{neighbor}\ *$ Poly6SmoothingKernel(Dist,$SmoothingRadius$);
+					}
+					$p_{ball} \leftarrow max$($p_{ball}$, $MinDensity$)\;
+					$P_{ball} \leftarrow$ PressureConstant$ * $($p_{ball}$)\;
+				}
+				\ForEach{ball $\in$ Metaballs}{
+					\ForEach{neighbor $\in Metaballs - \{ball\}$}{
+						Dist $\leftarrow distance$(ball, neighbor)\;
+						$\hat{r} \leftarrow normalize($ball.position - neighbor.position)\;
+						$a_{ball} \leftarrow a_{ball} +  \frac{m_{neighbor}}{m_{ball}}\cdot\frac{P_{ball}+P_{neighbor}}{2\cdot p_{ball}\cdot p_{neighbor}} * \hat{r}\ * $ SpikyGradientKernel(Dist, $SmoothingRadius$)\;
+					}
+					$a_{ball} \leftarrow a_{ball} + Gravity$\;
+				}
+				\caption{SPH Simulation}
+			\end{algorithm}
+			
+			We tested multiple configurations for our constant values, and we found that $SmoothingRadius = 0.1, PressureConstant = 20.0, MinDensity = 0.0$ is the most ideal value for presenting a realistic fluid.
+
+			In order to find a particle's acceleration, we have to find out its density and pressure first. The first for-each loop is performing such calculation. We compare every pairs of particle, and sum up the neighboring particle's influence by multiplying neighbor's mass and applying a smoothing kernel. Here we use the poly6 smoothing kernel to filter out particles which is located outside its soft boundary: 
+			
+			\noindent
+			\begin{minipage}{\linewidth}
+				\begin{lstlisting}[escapeinside={(*}{*)}]
+				//  (*$ \textcolor{dkgreen}{W_{ij}= 315*(h^2-r^2)^3 / 64*\pi*h^9} $*)
+				float Poly6SmoothingKernel(float r, float h)
+				{
+				return (*$ 315 * (h^2 - r^2)^3 / 64 * \pi * h^9 $*);
+				}
+				\end{lstlisting}
+			\end{minipage}
+		
+			The particle pressure is then calculated using ideal gas law in line 6. With the density and pressure found, we can proceed to calculate its acceleration. In the second for-each loop, each particle is once again compared to its neighboring particles. $\hat{r}$ is the normalized direction which the particle should travel under a repelling force. The acceleration is taken account with neighboring particles and the spiky gradient kernel. The spiky gradient kernel is defined as:
+			
+			\noindent
 	        \begin{minipage}{\linewidth}
-	        	\begin{lstlisting}
-	        	private void Test(){
-	        	int a = 1;
+	        	\begin{lstlisting}[escapeinside={(*}{*)}]
+	        	//  (*$ \textcolor{dkgreen}{\nabla W_{ij} = -45*(h-r)^2/\pi*h^6} $*)
+	        	float SpikyGradientKernel(float r, float h)
+	        	{
+	        	return (*$ -45 * (h-r)^2 / \pi * h^6 $*);
 	        	}
 	        	\end{lstlisting}
 	        \end{minipage}
+        
+        	Finally, the $Gravity$ which is set to be -9.8 towards the negative y-axis direction was added to the particle's acceleration in line 12. A fluid simulation cycle is now completed. This would keep repeating and updated in every single frame. 
 
         \subsection{Misc}
             For the purpose of creating a nice demo, we created a fragment shader with basic Phong illumination, in order to give the animation more depth.
@@ -289,13 +332,13 @@
         \cite{guy15}
 
         In comparison with our implementation, currently we are very much brute forcing when calculating the potential field over all particles.
-        For each voxel grid cell, all particles and their influences on that point are taken into account, even if they are so far away that their contribution of the field is negligable.
-        We can however use Guy's idea of spatial subdivision, by assigning the particles to their own grid cells, to detemine which range of particles should realistically have influence over a given point, before iterating through them 
+        For each voxel grid cell, all particles and their influences on that point are taken into account, even if they are so far away that their contribution of the field is negligible.
+        We can however use Guy's idea of spatial subdivision, by assigning the particles to their own grid cells, to determine which range of particles should realistically have influence over a given point, before iterating through them 
         We imagine implementing this as a spatial structure that is embedded in the texture that sends the particle positions to the GPU.
-        Each Y-cooridate of the texture could represent a grid cell, and all pixels on that column would still represent the particles that are in that cell, their positions and sizes.
-        Even after transforming the 3D grid to a linear structure one could simply define a lookup function that continues the nearest neighbour search in the neighbouring cells, and terminating after a certain depth if no neighbour particles are found.
+        Each Y-coordinate of the texture could represent a grid cell, and all pixels on that column would still represent the particles that are in that cell, their positions and sizes.
+        Even after transforming the 3D grid to a linear structure one could simply define a lookup function that continues the nearest neighbor search in the neighboring cells, and terminating after a certain depth if no neighbor particles are found.
         We could very well experiment with different values of the smoothing radius and thus the fixed grid size, but a good initial guess might be the radius from a particle center at which the potential field evaluates to some low threshold, let us say 0.01. 
-        This form of spatial subdivision would allow for more particles in the simulation, but since the voxel shader itself cannot run reliably with a grid size above 200-300 units, it would not yield the neccessary performance increase that is needed to simulate particles in a high-resolution domain.
+        This form of spatial subdivision would allow for more particles in the simulation, but since the voxel shader itself cannot run reliably with a grid size above 200-300 units, it would not yield the necessary performance increase that is needed to simulate particles in a high-resolution domain.
 
         Yet another performance problem comes from the fact that the division step in our metaball potential function is computationally expensive.
         Ryan Geiss (whose tutorial on the metaball isosurface model we used for this project) came with a suggestion for an approximate polynomial function which should in theory be faster on the GPU. His suggested function was:
@@ -304,7 +347,7 @@
         $[g(r) = r^4 - r^2 + 0.25]$
         \end{center}
 
-        This potential field function also has the neat property that it evaluates to 0 at $r=\frac{1}{\sqrt{2}}$, which means that you could do spatial optimization by only evaulating the points that fall within the radius of $r=\frac{1}{\sqrt{2}}$ of a singe metaball's center.
+        This potential field function also has the neat property that it evaluates to 0 at $r=\frac{1}{\sqrt{2}}$, which means that you could do spatial optimization by only evaluating the points that fall within the radius of $r=\frac{1}{\sqrt{2}}$ of a singe metaball's center.
         \cite{geiss00}
 
         Our prediction is that this would yield a similar performance increase to implementing a naive spacial subdivision, but we are still not solving the problem that the voxel shader itself is expensive.
@@ -349,7 +392,7 @@
 	Image from: \url{https://en.wikipedia.org/wiki/File:Metaballs.png}
 
 \bibitem{wiki10}
-  Image from: https://en.wikipedia.org/wiki/File:MarchingCubes.svg
+  Image from: \url{https://en.wikipedia.org/wiki/File:MarchingCubes.svg}
 
 \end{thebibliography}
 

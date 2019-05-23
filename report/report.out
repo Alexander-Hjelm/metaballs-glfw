@@ -3,10 +3,10 @@
 \BOOKMARK [1][-]{section.3}{Theory}{}% 3
 \BOOKMARK [2][-]{subsection.3.1}{Metaball isosurface model}{section.3}% 4
 \BOOKMARK [2][-]{subsection.3.2}{Marching cubes}{section.3}% 5
-\BOOKMARK [2][-]{subsection.3.3}{Smoothed Particle Hydrodynamic}{section.3}% 6
+\BOOKMARK [2][-]{subsection.3.3}{Smoothed Particle Hydrodynamics}{section.3}% 6
 \BOOKMARK [1][-]{section.4}{Implementation}{}% 7
 \BOOKMARK [2][-]{subsection.4.1}{Marching cubes}{section.4}% 8
-\BOOKMARK [2][-]{subsection.4.2}{Smoothed Particles Hydrodynamic}{section.4}% 9
+\BOOKMARK [2][-]{subsection.4.2}{Smoothed Particles Hydrodynamics}{section.4}% 9
 \BOOKMARK [2][-]{subsection.4.3}{Misc}{section.4}% 10
 \BOOKMARK [1][-]{section.5}{Result}{}% 11
 \BOOKMARK [1][-]{section.6}{Conclusions}{}% 12
