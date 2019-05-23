@@ -159,7 +159,7 @@
 				\centering
 				\begin{minipage}[b]{0.4\textwidth}
 					\includegraphics[width=\textwidth]{img/marching-cubes-config.png}
-					\caption{Marching cubes configurations}
+                    \caption{Marching cubes configurations \cite{wiki10}}
 					\label{fig:marching-cubes-config}
 				\end{minipage}
 			\end{figure}
@@ -172,8 +172,6 @@
         We have used GLFW and GLSL. GLFW is a cross-platform utility library for creating window and OpenGL context, and we will use it for handling both window and input events. While GLFW handles all the high-level program logic, our project focuses on the low-level rendering. Mainly we will use GLFW to manage the OpenGL context. GLSL is the shading language for OpenGL which enables developers to control over the rendering pipeline. We will use GLSL to write our shader programs.
         
         The metaball positions are updated on the CPU, and sent to the GPU on every update frame. We encode the metaballs data as a $n\times1$ 2D Texture. Each pixel is encoded with a metaball's position as its RGB values, and its radius as the alpha channel value. This method is proved ideal. Since Texture2D objects can be sent multiple times with different sizes, we can dynamically set the metaball count and the positions of each particles. Furthermore, since the Texture2D is easily sampled in a shader by using a Sampler object, it was trivial to extract the ball position and radius from each pixel.
-
-        To limit the pressure that the program puts on the CPU, we limited the upper rendering rate to 60 frames per second, by using a main loop that only runs the animation calculations and updates the GPU at fixed intervals.
 
         \subsection{Marching cubes}
         	We took the inspiration from Cyril Crassin's GLSL implementation. \cite{crassin} However, instead of representing the scalar field with 3D texture, we used a vertex buffer storing each voxel position in the grid. Also, we used a 2D texture for encoding the metaballs position and radius. The following pseudo-code is a brief description of our marching cube algorithm implementation in a geometry shader.
@@ -349,6 +347,9 @@
 
 \bibitem{wiki07}
 	Image from: \url{https://en.wikipedia.org/wiki/File:Metaballs.png}
+
+\bibitem{wiki10}
+  Image from: https://en.wikipedia.org/wiki/File:MarchingCubes.svg
 
 \end{thebibliography}
 
