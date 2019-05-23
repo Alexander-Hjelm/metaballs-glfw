@@ -142,7 +142,7 @@
 				\centering
 				\begin{minipage}[b]{0.4\textwidth}
 					\includegraphics[width=\textwidth]{img/marching-cubes-config.png}
-					\caption{Marching cubes configurations}
+                    \caption{Marching cubes configurations \cite{wiki10}}
 					\label{fig:marching-cubes-config}
 				\end{minipage}
 			\end{figure}
@@ -157,7 +157,6 @@
         The metaball positions are updated on the CPU, and sent to the GPU on every update frame. We send all data about the metaballs as a GLFW Texture2D object. For n balls, the texture has the size n by 1, and each pixel encodes that balls position as its RGB values, and the radius as its alpha value. This proved ideal. Since Texture2D objects can be sent multiple times with different sizes, we can dynamically set the metaball count and the positions of each particles. Furthermore, since the Texture2D is easily iterated through on the GPU by using a Sampler object, it was trivial to extract the ball position and radius from each pixel.
 
         To limit the pressure that the program puts on the CPU, we limited the CPU framterate to 60, by using a main loop that only runs the animation calculations and updates the GPU at fixed intervals.
-
 
         \subsection{Marching cubes}
         	\begin{minipage}{\linewidth}
@@ -287,6 +286,9 @@
 
 \bibitem{wiki07}
   Image from: https://en.wikipedia.org/wiki/File:Metaballs.png
+
+\bibitem{wiki10}
+  Image from: https://en.wikipedia.org/wiki/File:MarchingCubes.svg
 
 \end{thebibliography}
 
