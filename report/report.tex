@@ -176,9 +176,8 @@
         To limit the pressure that the program puts on the CPU, we limited the upper rendering rate to 60 frames per second, by using a main loop that only runs the animation calculations and updates the GPU at fixed intervals.
 
         \subsection{Marching cubes}
-        	The following pseudo-code is a brief description of our marching cube algorithm implementation in a geometry shader.
-			\\
-			\\
+        	We took the inspiration from Cyril Crassin's GLSL implementation. \cite{crassin} However, instead of representing the scalar field with 3D texture, we used a vertex buffer storing each voxel position in the grid. Also, we used a 2D texture for encoding the metaballs position and radius. The following pseudo-code is a brief description of our marching cube algorithm implementation in a geometry shader.
+        	
 			\begin{algorithm}[H]
 				\KwIn{A voxel center position}
 				\KwOut{A triangle list representing the isosurface}
@@ -317,32 +316,39 @@
 
 \begin{thebibliography}{9}
 
-\bibitem{geiss00}
-  Ryan Geiss,
-  \textit{Metaballs (also known as: Blobs)},
-  October,
-  2000.
-  \\
-  http://www.geisswerks.com/ryan/BLOBS/blobs.html
+\bibitem{crassin}
+	Cyril Crassin,
+	\textit{OpenGL Geometry Shader Marching Cubes},
+	January,
+	2007.
+	\\
+	\url{http://www.icare3d.org/codes-and-projects/codes/opengl_geometry_shader_marching_cubes.html}
 
 \bibitem{heckbert92}
-  Paul Heckbert,
-  \textit{Intro to Metaballs},
-  November,
-  1992.
-  \\
-  https://steve.hollasch.net/cgindex/misc/metaballs.html
-
+	Paul Heckbert,
+	\textit{Intro to Metaballs},
+	November,
+	1992.
+	\\
+	\url{https://steve.hollasch.net/cgindex/misc/metaballs.html}
+	
+\bibitem{geiss00}
+	Ryan Geiss,
+	\textit{Metaballs (also known as: Blobs)},
+	October,
+	2000.
+	\\
+	\url{http://www.geisswerks.com/ryan/BLOBS/blobs.html}
 
 \bibitem{guy15}
-  Ryan Guy,
-  \textit{Smoothed Particle Hydrodynamics Fluid Simulation},
-  2015.
-  \\
-  http://rlguy.com/sphfluidsim/
+	Ryan L. Guy,
+	\textit{Smoothed Particle Hydrodynamics Fluid Simulation},
+	2015.
+	\\
+	\url{http://rlguy.com/sphfluidsim/}
 
 \bibitem{wiki07}
-  Image from: https://en.wikipedia.org/wiki/File:Metaballs.png
+	Image from: \url{https://en.wikipedia.org/wiki/File:Metaballs.png}
 
 \end{thebibliography}
 
