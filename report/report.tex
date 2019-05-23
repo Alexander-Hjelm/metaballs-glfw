@@ -6,19 +6,22 @@
 \usepackage{hyperref}
 \usepackage{float}
 
+% algorithm
+\usepackage[linesnumbered, ruled,vlined]{algorithm2e}
+
 % paper margin
 \usepackage{geometry}
 \geometry{
 	a4paper,
 	total={170mm,257mm},
-	left=14mm,
-	right=14mm,
+	left=10mm,
+	right=10mm,
 	top=14mm,
 }
 
 % multi-column
 \usepackage{multicol}
-\setlength{\columnsep}{1cm}
+\setlength{\columnsep}{0.8cm}
 
 % color definition
 \definecolor{dkgreen}{rgb}{0,0.6,0}
@@ -26,22 +29,36 @@
 \definecolor{mauve}{rgb}{0.58,0,0.82}
 
 % listing
+\lstdefinestyle{glsl}{
+	basicstyle=\footnotesize\ttfamily,
+	belowcaptionskip=1\baselineskip,
+	breaklines=true,
+	commentstyle=\itshape\color{dkgreen},
+	keywordstyle=\bfseries\color{blue},
+	language=C++,
+	identifierstyle=\color{black},
+	morekeywords={in, out, vec3, vec4, mat4},
+	showstringspaces=false,
+	stringstyle=\color{orange},
+	xleftmargin=\parindent,
+}
 \lstset{frame=tb,
-  language=C++,
   aboveskip=3mm,
   autogobble=true,
-  belowskip=3mm,
-  showstringspaces=false,
-  columns=flexible,
   basicstyle={\small\ttfamily},
-  numbers=none,
-  numberstyle=\tiny\color{gray},
-  keywordstyle=\color{blue},
-  commentstyle=\color{dkgreen},
-  stringstyle=\color{mauve},
+  belowskip=3mm,
   breaklines=true,
   breakatwhitespace=true,
-  tabsize=3
+  columns=flexible,
+  commentstyle=\color{dkgreen},
+  keywordstyle=\color{blue},
+%  language=C++,
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  showstringspaces=false,
+  stringstyle=\color{mauve},
+  style=glsl,
+  tabsize=3,
 }
 
 \begin{document}
@@ -93,12 +110,12 @@
 
         \subsection{Metaball isosurface model}
             A metaball is an isosurface in 3D space. 
-            Define a function $f(x,y,z)$, which takes as input a set of coordinates in 3D space, and returns a floating poing value that represents the influence of the function on that point.
+            Define a function $f(x,y,z)$, which takes as input a set of coordinates in 3D space, and returns a floating point value that represents the influence of the function on that point.
             When we have such a function, we can sample it at even or random intervals to determine which points belong inside the surface and which belong outside it.
-            This is simply a matter of comparing wether the influence at a point is greater than a fixed threshold or not.
+            This is simply a matter of comparing whether the influence at a point is greater than a fixed threshold or not.
             We can then use a number of different rendering techniques to create a presentation of this 3D surface, as we shall see in the next section.
 
-            For now, let us look at the metaball surface model in particular. The most common isosurface fucntion for the metaball model is inverse quadratic:
+            For now, let us look at the metaball surface model in particular. The most common isosurface function for the metaball model is inverse quadratic:
 
             $[f(x,y,z) = 1.0 / (x^2 + y^2 + z^2)]$
 
@@ -154,28 +171,67 @@
 
         We have used GLFW and GLSL. GLFW is a cross-platform utility library for creating window and OpenGL context, and we will use it for handling both window and input events. While GLFW handles all the high-level program logic, our project focuses on the low-level rendering. Mainly we will use GLFW to manage the OpenGL context. GLSL is the shading language for OpenGL which enables developers to control over the rendering pipeline. We will use GLSL to write our shader programs.
         
-        The metaball positions are updated on the CPU, and sent to the GPU on every update frame. We send all data about the metaballs as a GLFW Texture2D object. For n balls, the texture has the size n by 1, and each pixel encodes that balls position as its RGB values, and the radius as its alpha value. This proved ideal. Since Texture2D objects can be sent multiple times with different sizes, we can dynamically set the metaball count and the positions of each particles. Furthermore, since the Texture2D is easily iterated through on the GPU by using a Sampler object, it was trivial to extract the ball position and radius from each pixel.
+        The metaball positions are updated on the CPU, and sent to the GPU on every update frame. We encode the metaballs data as a $n\times1$ 2D Texture. Each pixel is encoded with a metaball's position as its RGB values, and its radius as the alpha channel value. This method is proved ideal. Since Texture2D objects can be sent multiple times with different sizes, we can dynamically set the metaball count and the positions of each particles. Furthermore, since the Texture2D is easily sampled in a shader by using a Sampler object, it was trivial to extract the ball position and radius from each pixel.
 
-        To limit the pressure that the program puts on the CPU, we limited the CPU framterate to 60, by using a main loop that only runs the animation calculations and updates the GPU at fixed intervals.
-
+        To limit the pressure that the program puts on the CPU, we limited the upper rendering rate to 60 frames per second, by using a main loop that only runs the animation calculations and updates the GPU at fixed intervals.
 
         \subsection{Marching cubes}
-        	\begin{minipage}{\linewidth}
-			    \begin{lstlisting}
-					private void Test(){
-					int a = 1;
+        	The following pseudo-code is a brief description of our marching cube algorithm implementation in a geometry shader.
+			\\
+			\\
+			\begin{algorithm}[H]
+				\KwIn{A voxel center position}
+				\KwOut{A triangle list representing the isosurface}
+
+				Corners[8] $\leftarrow$ Position of 8 voxel corners\;
+				\For{$i\leftarrow 0$ \KwTo $7$}{
+					\For{$j\leftarrow 0$ \KwTo $MetaballCount-1$}{
+						Pixel $\leftarrow$ MetaballTex[0][j]\;
+						IsoValue[i] $\leftarrow$ Pixel.a / distance(Pixel.rgb, Corners[i])\;
 					}
+				}
+				LookUpIndex $\leftarrow$ 0\;
+				\For{$i\leftarrow 0$ \KwTo $7$}{
+					\If{IsoValue[i] $<$ IsoLevel}{
+						LookUpIndex $\leftarrow$ LookUpIndex + $2^i$\;
+					}
+				}
+				\If{LookUpIndex = 0 $\vee$ LookUpIndex = 255}{
+					return\;
+				}
+				VertexList[12] $\leftarrow$ Position where isosurface intersects 12 voxel edges\;
+				\While{LookUpTex[LookUpIndex][i] != -1}{
+					P1$\leftarrow$VertexList[LookUpTex[LookUpIndex][i]]\;
+					P2$\leftarrow$VertexList[LookUpTex[LookUpIndex][i+1]]\;
+					P3$\leftarrow$VertexList[LookUpTex[LookUpIndex][i+2]]\;
+					Triangle $\leftarrow \bigtriangleup$(Pt1, Pt2, Pt3)\;
+					Triangle.normal $\leftarrow$ cross(Pt3-Pt1, Pt2-Pt1)\;
+					OutPrimitives.append(Triangle)\;
+				}
+			
+				\caption{Marching Cubes}
+			\end{algorithm}
+        	
+			This geometry shader code takes in a voxel position and outputs the sequence of polygonal mesh of the isosurface. We have two input textures, one for triangle configurations look-up ($LookUpTex$), and one for the encoded information for our metaballs ($MetaballTex$). 
+			
+			From line 1 to 5, the isovalue for each corner vertices is evaluated according to the inverse quadratic equation. With all the isovalue calculated, we then have to figure out which cube configuration should be used. And it can be done by comparing each vertex to the threshold ($IsoLevel$) and construct a bitmap $LookUpIndex$, as shown in line 6 to 9. In line 10 and 11, we terminate the algorithm since the voxel is considered as entirely inside or outside of the surface if $LookUpIndex$ is 0 or 255. That means no polygonal mesh is needed to be rendered. After that, every vertices along the voxel edges are interpolated based on the isovalue of the two neighbor corners. 
+			
+			With the correct configuration index and vertices position, we can construct the triangle list that is going to be rendered. Noted that every single row in the $LookUpTex$ follows this layout:
+			\begin{minipage}{\linewidth}
+				\begin{lstlisting}
+				{2, 8, 3, 2, 10, 8, 10, 9, 8, -1, -1, -1, -1, -1, -1, -1}
 				\end{lstlisting}
-        	\end{minipage}
+			\end{minipage}
+			A row consists of 16 integers initialized with -1. Starting from the left, every three integers specify which three vertices along the edge make a triangle. There will be a maximum of 5 triangles in any cube configurations, leaving the last integer in the layout a padding space. From line 13 to 19, we query the suitable edge index from $LookUpTex$ and find its corresponding interpolated vertex position in $VertexList$ as the final triangle vertex position. Using the three vertices, we can calculated the face normal easily for later use in fragment shading stage. And finally push the triangle to the end of the output triangle stream. Repeat this process until there are no triangles needed to be added to the list. 
         
 		\subsection{Smoothed Particles Hydrodynamic}
-        \begin{minipage}{\linewidth}
-        	\begin{lstlisting}
-        	private void Test(){
-        	int a = 1;
-        	}
-        	\end{lstlisting}
-        \end{minipage}
+	        \begin{minipage}{\linewidth}
+	        	\begin{lstlisting}
+	        	private void Test(){
+	        	int a = 1;
+	        	}
+	        	\end{lstlisting}
+	        \end{minipage}
 
         \subsection{Misc}
             For the purpose of creating a nice demo, we created a fragment shader with basic Phong illumination, in order to give the animation more depth.
