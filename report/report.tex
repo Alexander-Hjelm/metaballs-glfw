@@ -81,7 +81,6 @@
     \begin{multicols}{2}
 
     \section{Summary}
-    %TODO: Write a summary
         In this project, we have rendered fluid-like 3D body in real time by using the Metaballs technique with the Marching Cubes rendering method. The project will cover the theory behind those technique, as well as outline our specific implementation in GLFW and GLSL. We could not render as many particles as we had hoped for, and in the end of the report we will discuss a few ideas for how to optimize both the particle model and the rendering, as well as present some alternative techniques that are more suitable for real time rendering purposes. Any reader that is interested in delving deeper will find the whole source code for this project available under the MIT license at this repository: \url{https://github.com/Alexander-Hjelm/metaballs-glfw}.
     
     \section{Introduction}
@@ -372,7 +371,6 @@
 
     By far, the biggest problem we encountered was a graphical glitch that only occured on one of our computers. Inside the shader program we had not initialized the vec3 array containing the metaball positions, meaning that upon declaration it was given whatever values were stored in memory before. This resulted in strange behaviors, and what made debugging hard was that our computers treated this error differently.
     When the program was compiled and run on Tsz Kin's MacBook Pro, the simulation seemed to work perfectly fine, whereas on Alexander's linux PC we encountered these glitches. This led us to believe that we were actually running different version of OpenGL, and we began debugging library compatibility issues. We only found out after explaining the problem to a teacher's assistant, but by then we had spent a week without making any progress.
-    %TODO: picture
 
     Needless to say, we have learnt our lesson of the importance of manual memory management.
     We only maintain that a lot of time could have been saved, had we thought of this before.
@@ -401,8 +399,15 @@
             
         \subsection{Procedure}
 
-            We would begin by making a simple fluid simulation with a scene model that can collide with a fluid object, e.g. the stanford bunny. In this scene, we will be able to cofigure the properties of the fluid and spawn a fluid body on top of the bunny model, so that the viscous and adhesive properties become clearly visible. For example, if the fluid is very adhesive, some particles of the fluid body would stick to the bunny. Our inspiration to this setup comes from a scene in the NVIDIA Flex demo, as seen in figure X.
-            %TODO: picture
+            We would begin by making a simple fluid simulation with a scene model that can collide with a fluid object, e.g. the stanford bunny. In this scene, we will be able to cofigure the properties of the fluid and spawn a fluid body on top of the bunny model, so that the viscous and adhesive properties become clearly visible. For example, if the fluid is very adhesive, some particles of the fluid body would stick to the bunny. Our inspiration to this setup comes from a scene in the NVIDIA Flex demo, as seen in figure 6.
+            \begin{figure}[H]
+                \centering
+                \begin{minipage}[b]{0.5\textwidth}
+                    \includegraphics[width=\textwidth]{img/flex-bunny.png}
+                    \caption{An example of how our scene could look, where a milk-like fluid interacts with a stanford bunny model. \cite{nvidia-flex}}
+                    \label{fig:flex-bunny}
+                \end{minipage}
+            \end{figure}
 
             A few ideas for fluids we could model are:
             \begin{itemize}
@@ -464,6 +469,9 @@
 
 \bibitem{wiki10}
   Image from: \url{https://en.wikipedia.org/wiki/File:MarchingCubes.svg}
+
+\bibitem{nvidia-flex}
+  Image from the official NVIDIA Flex demo video: \url{https://www.youtube.com/watch?v=1o0Nuq71gI4}
 
 \end{thebibliography}
 
