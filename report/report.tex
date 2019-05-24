@@ -361,11 +361,47 @@
         Much in agreement with our hypthesis, it seems that this is a standard method when it comes to rendering fluids in real time.
         Since point-based methods operate on a boundless point cloud, they also has the nice property of being domain-independent, which means you don't need to confine the fluid to a bounding box as in the case of marching cubes or any other voxel-based rendering method. This would make them more ideal for use in a game enviroment.
 
+    \section{Division of responsibility}
+
+    Alexander created the backbone GLFW program that first allowed us to render simple triangles and primitive shapes. He also implemented the metaballs rendering model and the potential field solution, and wrote a basic physics model, that Tsz Kin later used in the SPH model.
+
+    Tsz Kin programmed a voxel shader and turned it into the marching cubes shader that we finally used. Additionally he programmed the SPH model that made the particles interact with each other and the environment.
+
     \section{Reflections on the project}
+
+    The biggest problem we encountered:
+    Inside the shader program we had not initialized the metaball position (vec3) array, meaning it carried over whatever was stored in memory before.
+    This resulted in strange behaviors.
+    %TODO: picture
+    Our computers treated this differently. When compiled and run on Tsz Kin's macbook, the simulation seemed to work perfectly fine, whereas on Alexander's linux PC we encountered these glitches. This led us to believe that we were actually running different version of OpenGL, and we began debugging library compatibility issues. We only found out after explaining the problem to a teacher's assistant, but by then we had spend a week without making any progress.
+
+    There is no denying that the task was hard for someone of our knowledge level of C++. 
+
+
+    We belive it was a good project because the hierarchical nature of it allowed us to progress just as far as we wanted.
+    It included a first deep-dive into OpenGL and shader programming, and it's practical nature meant we always had a next goal in mind, all the way to the final render.
 
     \section{Idea for a perceptual study}
 
-    \section{Division of responsibility}
+        \subsection{Hypothesis}
+
+            How would different levels of adhesion, different colors and different translucency affect people's perception of the scene?
+
+        \subsection{Target group}
+
+        \subsection{Procedure}
+
+            We make a simple simulation of the stanford bunny and pour fluid on it.
+            %TODO: picture
+
+        \subsection{Metrics (Questions)}
+
+            We can give them a questionaire where we ask them how satisfied/disgusted/etc they feel after seeing a simulation, and then they can write what they think the fluid is
+
+        \subsection{Expectations}
+
+            Because we have a hypothesis that people are naturally disgusted by mucus and slime
+            And if the fluid is too viscous and don't stick, the satisfaction of watching the animation might go down
 
 	\end{multicols}
 
