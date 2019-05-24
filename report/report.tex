@@ -369,39 +369,39 @@
 
     \section{Reflections on the project}
 
-    The biggest problem we encountered:
-    Inside the shader program we had not initialized the metaball position (vec3) array, meaning it carried over whatever was stored in memory before.
-    This resulted in strange behaviors.
+    By far, the biggest problem we encountered was a graphical glitch that only occured on one of our computers. Inside the shader program we had not initialized the vec3 array containing the metaball positions, meaning that upon declaration it was given whatever values were stored in memory before. This resulted in strange behaviors, and what made debugging hard was that our computers treated this error differently.
+    When the program was compiled and run on Tsz Kin's macbook, the simulation seemed to work perfectly fine, whereas on Alexander's linux PC we encountered these glitches. This led us to believe that we were actually running different version of OpenGL, and we began debugging library compatibility issues. We only found out after explaining the problem to a teacher's assistant, but by then we had spent a week without making any progress.
     %TODO: picture
-    Our computers treated this differently. When compiled and run on Tsz Kin's macbook, the simulation seemed to work perfectly fine, whereas on Alexander's linux PC we encountered these glitches. This led us to believe that we were actually running different version of OpenGL, and we began debugging library compatibility issues. We only found out after explaining the problem to a teacher's assistant, but by then we had spend a week without making any progress.
+    Needless to say, we have learnt our lesson of the importance of manual memory management.
+    We only maintain that a lot of time could have been saved, had we thought of this before.
+    After all there is no denying that the task was of a very hard level for someone of our knowledge level of C++. 
 
-    There is no denying that the task was hard for someone of our knowledge level of C++. 
-
-
-    We belive it was a good project because the hierarchical nature of it allowed us to progress just as far as we wanted.
-    It included a first deep-dive into OpenGL and shader programming, and it's practical nature meant we always had a next goal in mind, all the way to the final render.
+    Other than that we did not encounter a lot of problems, and the project as a whole has been a stimulating and fascinating journey.
+    We belive it was a good project because the hierarchical nature of it, which allowed us to progress just as far as we wanted.
+    We could easily begin with creating a simple Hello Triangle application, and we could keep building on that, always having the next intermediate goal in mind, all the way to the final render.
+    Both of us appreciate the we now have the overall OpenGL knowledge required for graphics and games programming, and we will most likely use this very project as a base to start future work on.
+    When debugging we also got to use renderdoc to examine our shader programs, which we both now have valuable experience with.
 
     \section{Idea for a perceptual study}
 
-        Our idea for a perceptual study concerns the perception of 3D fluids with different material properties, what feelings they invoke in an observer and how the observer relate them to known fluid materials in the real world.
+        Our idea for a perceptual study concerns the perception of 3D fluids with different material properties, what feelings they invoke in an observer and how the observer relate them to known fluid materials in the real world. Such data can be of use for e.g. 3D filmmakers who use materials not only to give an object features that are representative of the real world, but also to invoke emotions in the viewer, such as feelings of happiness, ease or horror.
 
         \subsection{Hypothesis}
 
             We assume that we can model fluid objects with different colors, as well as different physical properties such as adhesion and viscosity, as well as material properties such as translucency and reflectiveness.
             Our question is then how variations in these properties will affect people's perception of the 3D scene.
-            Our hypothesis is that if a person sees a virtual fluid object that strongly resembles a fluid material that we are naturally repelled by, such as mucus, slime, sludge or urine, they would respond negatively, as compared to if they would see a virtual fluid that resembles something positive such as soft drink, cream or milk or simply water.
+            Our hypothesis is that a person would feel negative emotions when presented with a virtual fluid object that strongly resembles a fluid material that we are naturally repelled by, such as mucus, slime, sludge or urine, as compared to if they would see a virtual fluid that resembles something positive such as soft drink, cream or milk or simply water.
 
         \subsection{Target group}
         
-            It would be interesting to compare the two segments: younger people who have consumed a lot of digital animation and video games, and an older segment who are not used to seeing 3D animation. We imagine the target segments of 10-20 years for the group who frequently consumes 3D media, and 60-80 years for the group that does not. Of course we would have an initial survey to verify their 3D media consumption habits.
+            For us it would be interesting to compare the two segments: younger people who have consumed a lot of digital animation and video games, and an older segment who are not used to seeing 3D animation. We imagine the target ages of 10-20 years for the group who frequently consumes 3D media, and 60-80 years for the group that does not. Of course we would have an initial survey to verify their 3D media consumption habits.
             
         \subsection{Procedure}
 
-            We make a simple simulation of the stanford bunny, where we can cofigure the properties of a fluid and spawn a fluid body on top of the bunny model, so that the viscous and adhesive properties become clearly visible. For example, if the fluid is very adhesive, some particles of the fluid body would stick to the bunny. Similar to an early scene in the NVIDIA Flex demo, as seen in figure X.
+            We would begin by making a simple fluid simulation with a scene model that can collide with a fluid object, e.g. the stanford bunny. In this scene, we will be able to cofigure the properties of the fluid and spawn a fluid body on top of the bunny model, so that the viscous and adhesive properties become clearly visible. For example, if the fluid is very adhesive, some particles of the fluid body would stick to the bunny. Our inspiration to this setup comes from a scene in the NVIDIA Flex demo, as seen in figure X.
             %TODO: picture
 
             A few ideas for fluids we could model are:
-
             \begin{itemize}
                 \item \textbf{Slime}: highly viscous, highly adhesive, green and very reflective but not very translucent.
                 \item \textbf{Mucus}: not very viscous, highly adhesive, green/brownish and very translucent.
@@ -409,20 +409,17 @@
             \end{itemize}
 
             We would show each respondent a random selection of fluids, perhaps 4 or 5, in a random order. The repondent then responds to a questionaire where we ask them questions about their experience with the animation. A few example metrics could be:
-            
             \begin{itemize}
                 \item How satisfied/dissatisfied the observer is.
                 \item How pleased/disgusted the observer is.
             \end{itemize}
             
-            Finally, we would ask the respondent what material they think the fluid represents, so that we can make a meaningful assesment of their answers based on that fluid they think they were percieveing. We would do this last of all, so as to not color the respondents' expectations.
+            Finally, we would ask the respondent what material they think the fluid represents, so that we can make a meaningful assesment of their answers based on what fluid they think they were percieveing. We would do this last of all, so as to not color the respondents' expectations when answering the other questions
 
         \subsection{Expectations}
 
-            We have a hypothesis that people are naturally disgusted by substances such as mucus and slime, so 
-            And if the fluid is too viscous and don't stick, the satisfaction of watching the animation might go down
-
-            This even opens up possibilities such as testing the levels of satisfaction when a fluid material that is known to be sticky, such as slime, does not stick to the scene model. We predict that the level of dissatisfaction would go up notably in these test cases.
+            We have the predetermined notion that people are naturally disgusted by substances such as mucus and slime, so our expectation is that virtual representations of those fluids will invoke the same kind of emotion.
+            Additionally, there is the possibility that failing to properly model a real fluid's visual or physical properties will cause a certain dissatisfaction in the observer. An example would be when a fluid that is known to be sticky, such as slime, does not stick to the scene model. We predict that the level of dissatisfaction would go up notably in these test cases.
 
 	\end{multicols}
 
