@@ -101,7 +101,7 @@
 	    	\begin{minipage}[b]{0.5\textwidth}
 	    		\centering
 	    		\includegraphics[width=0.3\textwidth]{img/metaballs-concept.png}
-	    		\caption{A conceptual visualisation of how metaballs work. 1 shows two metaballs gradually merging, and 2 shows the influence of a negative metaball on a positive metaball. \cite{wiki07}}
+	    		\caption{A conceptual visualization of how metaballs work. 1 shows two metaballs gradually merging, and 2 shows the influence of a negative metaball on a positive metaball. \cite{wiki07}}
 	    		\label{fig:metaballs-concept}
 	    	\end{minipage}
 	    \end{figure}
@@ -120,8 +120,8 @@
             $[f(x,y,z) = 1.0 / (x^2 + y^2 + z^2)]$
 
             This function describes a field where each ball has an influence point with quadratic falloff.
-            For any point $\vec{p}$ in 3D, and for any ball's position $\vec{b}$, the influence of that ball on the point $\vec{p}$ will be proporitonal to $|\vec{p} - \vec{b}|^2$.
-            This function is also used to model the strength of electrical fields in electromagnetics, which is why we choose to label it as the metaball potetial field function.
+            For any point $\vec{p}$ in 3D, and for any ball's position $\vec{b}$, the influence of that ball on the point $\vec{p}$ will be proportional to $|\vec{p} - \vec{b}|^2$.
+            This function is also used to model the strength of electrical fields in electromagnetic studies, which is why we choose to label it as the metaball potential field function.
             \cite{geiss00}
 
             If one were to draw the resulting field of a single metaball around the origin, it might look like figure 2, where the brightness of the color indicates the influence of the field at that point.
@@ -171,7 +171,7 @@
 
         We have used GLFW and GLSL. GLFW is a cross-platform utility library for creating window and OpenGL context, and we will use it for handling both window and input events. While GLFW handles all the high-level program logic, our project focuses on the low-level rendering. Mainly we will use GLFW to manage the OpenGL context. GLSL is the shading language for OpenGL which enables developers to control over the rendering pipeline. We will use GLSL to write our shader programs.
         
-        The metaball positions are updated on the CPU, and sent to the GPU on every update frame. We encode the metaballs data as a $n\times1$ 2D Texture. Each pixel is encoded with a metaball's position as its RGB values, and its radius as the alpha channel value. This method is proved ideal. Since Texture2D objects can be sent multiple times with different sizes, we can dynamically set the metaball count and the positions of each particles. Furthermore, since the Texture2D is easily sampled in a shader by using a Sampler object, it was trivial to extract the ball position and radius from each pixel.
+        The metaball positions are updated on the CPU, and sent to the GPU on every update frame. We encode the metaballs data as a $n\times1$ 2D Texture. Each pixel is encoded with the metaball position as its RGB values, and its radius as the alpha channel value. This method is proved ideal. Since Texture2D objects can be sent multiple times with different sizes, we can dynamically set the metaball count and the positions of each particles. Furthermore, since the Texture2D is easily sampled in a shader by using a Sampler object, it was trivial to extract the ball position and radius from each pixel.
 
         \subsection{Marching cubes}
         	We took the inspiration from Cyril Crassin's GLSL implementation. \cite{crassin} However, instead of representing the scalar field with 3D texture, we used a vertex buffer storing each voxel position in the grid. Also, we used a 2D texture for encoding the metaballs position and radius. The following pseudo-code is a brief description of our marching cube algorithm implementation in a geometry shader.
@@ -285,7 +285,7 @@
         An animated video can be found here:
         \url{https://youtu.be/jmScNqchXs0}.
 
-        Both the figure and the video show the same real time simlution, consisting of 100 particles and a voxel grid size of 80 units.
+        Both the figure and the video show the same real time simulation, consisting of 100 particles and a voxel grid size of 80 units.
         The same physics and lightning models that were mentioned at the end of section 4 have both been applied.
 
         \begin{figure}[H]
@@ -301,15 +301,16 @@
         \subsection{Limitations on the rendering model}
         
         One of our main obstacles with the simulation was that we could not run it with a high enough voxel grid count to render an impressive looking fluid on a large simulation domain.
-        The cell count of the voxel grid is simply the resolution at which the fluid can be renderered.
+        The cell count of the voxel grid is simply the resolution at which the fluid can be rendered.
         A high enough cell count will make the fluid appear smooth and seamless, but as the cell count decreases, the sharp edges of the cube marched mesh will become visible and the mesh as a whole will appear coarse and chunky.
 
-        In order to find out wether the voxel shader or the particle model were the performance bottleneck, we ran a series of tests of the same simulation, with varying numbers of particles.
-        The test was run on a NVIDIA Geforce GTX 1050 Ti, which can be classified as a medium-tier to high-tier latop graphics card.
+        In order to find out whether the voxel shader or the particle model were the performance bottleneck, we ran a series of tests of the same simulation, with varying numbers of particles.
+        The test was run on a NVIDIA Geforce GTX 1050 Ti, which can be classified as a medium-tier to high-tier laptop graphics card.
         For each test we noted the maximum voxel cell count we could use while still running the simulation reliably above 30 frames per second.
-        The following table lists the mumber of metaballs vs the maximum voxel grid cell count we could use before the framerate would drop below 30 fps:
+        The following table lists the number of metaballs vs the maximum voxel grid cell count we could use before the frame rate would drop below 30 fps:
 
-        \begin{tabular}{ l | c | r }
+		\noindent
+        \begin{tabular}{ c | c | c }
             voxel grid size & max balls at 30 fps & max balls at 60 fps \\
             80 & 180 & 130 \\
             50 & 295 & 205 \\
@@ -317,7 +318,7 @@
             5 & 300 & 210 \\
         \end{tabular}
 
-        Finally: disabling the metaball filter completely, and just running the voxel shader itself, yielded a maximum voxel cell count of 310 units before the framrate dropped below 30.
+        Finally: disabling the metaball filter completely, and just running the voxel shader itself, yielded a maximum voxel cell count of 310 units before the frame rate dropped below 30.
         Our conclusion is that the geometry shader itself, without any particles, can run with a voxel grid size in the order of 100-200 units at 60 fps, and up to 300 units at 30 fps.
         For our purpose, this can be used to create a nice looking dynamic fluid on a small simulation domain, or a very chunky looking fluid on a medium sized to large sized simulation domain, or a fluid with very few particles.
         To render an impressive fluid in a medium sized voxel grid, it would be nice if we could optimize the particle model so that we could run in the order of 100 particles at a voxel grid size of 200.
@@ -325,15 +326,15 @@
 
         \subsection{Particle model, optimizations to the SPH algorithm}
         It seems that the industry standard for fluid simulation in high quality games and video is the Smoothed Particle Hydrodynamics (SPH) model with Ellipsoid Splatting rendering.
-        The SPH model uses nearest neighbour search to find out how a particle should collide.
-        Ryan L. Guy, whose SPH implementation we created a naive version of, has profiled his simulation times in his paper for the University of Virginia. From the results we can see that the majority of the simulation time (around 75\%-85\%) is spent in the nearest neighbour search.
-        Thus the goal for the particle model must be to optimize the nearest neighbour search for all particles.
+        The SPH model uses nearest neighbor search to find out how a particle should collide.
+        Ryan L. Guy, whose SPH implementation we created a naive version of, has profiled his simulation times in his paper for the University of Virginia. From the results we can see that the majority of the simulation time (around 75\%-85\%) is spent in the nearest neighbor search.
+        Thus the goal for the particle model must be to optimize the nearest neighbor search for all particles.
         \cite{guy15}
-        Guy has done this by implementing a spatial grid that functions as a lookup table for the particles, while our implmentation uses a brute force search ovar all other particles.
-        This severely limits the number of particles that can be modelled, 
+        Guy has done this by implementing a spatial grid that functions as a lookup table for the particles, while our implementation uses a brute force search over all other particles.
+        This severely limits the number of particles that can be modeled, 
         For each voxel grid cell, all particles and their influences on that point are taken into account, even if they are so far away that their contribution of the field is negligible.
         We can however use Guy's idea of spatial subdivision, by assigning the particles to their own grid cells, to determine which range of particles should realistically have influence over a given point, before iterating through them 
-        Any particle will begin its nearest neighbour search in the grid cell in which it is contained, and continues to search through the nearest 26 cells until the nearest neighbour is found.
+        Any particle will begin its nearest neighbor search in the grid cell in which it is contained, and continues to search through the nearest 26 cells until the nearest-neighbor is found.
         The fixed grid size was set to the one smoothing radius of the particle system, which is the maximum distance at which any two particles will interact.
         We imagine implementing this as a spatial structure that is embedded in the texture that sends the particle positions to the GPU.
         Each Y-coordinate of the texture could represent a grid cell, and all pixels on that column would still represent the particles that are in that cell, their positions and sizes.
@@ -355,11 +356,11 @@
         To address this, our suggestion would be to redo the rendering model and instead use a point-based rendering method, which would be much more ideal for real time fluid simulation.
 
         \subsection{Summary}
-        To conclude, we believe that the key to a more impressive fluid simulation is to optimize our SPH implementation so that each particle can do the nearest neighbour search more selectively, as well as to use another renderering method, other than the marching cubes method.
+        To conclude, we believe that the key to a more impressive fluid simulation is to optimize our SPH implementation so that each particle can do the nearest neighbor search more selectively, as well as to use another rendering method, other than the marching cubes method.
         We suggest looking at point splatting for this, which is simply a method of rendering a circle or ellipsoid at the particle's position, that orients itself depending on the surface direction.
-        If many particles accumulate in one area, that area will appear to be more concenctrated.
-        Much in agreement with our hypthesis, it seems that this is a standard method when it comes to rendering fluids in real time.
-        Since point-based methods operate on a boundless point cloud, they also has the nice property of being domain-independent, which means you don't need to confine the fluid to a bounding box as in the case of marching cubes or any other voxel-based rendering method. This would make them more ideal for use in a game enviroment.
+        If many particles accumulate in one area, that area will appear to be more concentrated.
+        Much in agreement with our hypothesis, it seems that this is a standard method when it comes to rendering fluids in real time.
+        Since point-based methods operate on a boundless point cloud, they also has the nice property of being domain-independent, which means you don't need to confine the fluid to a bounding box as in the case of marching cubes or any other voxel-based rendering method. This would make them more ideal for use in a game environment.
 
     \section{Division of responsibility}
 
@@ -373,12 +374,12 @@
     Inside the shader program we had not initialized the metaball position (vec3) array, meaning it carried over whatever was stored in memory before.
     This resulted in strange behaviors.
     %TODO: picture
-    Our computers treated this differently. When compiled and run on Tsz Kin's macbook, the simulation seemed to work perfectly fine, whereas on Alexander's linux PC we encountered these glitches. This led us to believe that we were actually running different version of OpenGL, and we began debugging library compatibility issues. We only found out after explaining the problem to a teacher's assistant, but by then we had spend a week without making any progress.
+    Our computers treated this differently. When compiled and run on Tsz Kin's MacBook Pro, the simulation seemed to work perfectly fine, whereas on Alexander's Linux PC we encountered these glitches. This led us to believe that we were actually running different version of OpenGL, and we began debugging library compatibility issues. We only found out after explaining the problem to a teacher's assistant, but by then we had spend a week without making any progress.
 
     There is no denying that the task was hard for someone of our knowledge level of C++. 
 
 
-    We belive it was a good project because the hierarchical nature of it allowed us to progress just as far as we wanted.
+    We believe it was a good project because the hierarchical nature of it allowed us to progress just as far as we wanted.
     It included a first deep-dive into OpenGL and shader programming, and it's practical nature meant we always had a next goal in mind, all the way to the final render.
 
     \section{Idea for a perceptual study}
@@ -391,12 +392,12 @@
 
         \subsection{Procedure}
 
-            We make a simple simulation of the stanford bunny and pour fluid on it.
+            We make a simple simulation of the Stanford bunny and pour fluid on it.
             %TODO: picture
 
         \subsection{Metrics (Questions)}
 
-            We can give them a questionaire where we ask them how satisfied/disgusted/etc they feel after seeing a simulation, and then they can write what they think the fluid is
+            We can give them a questionnaire where we ask them how satisfied/disgusted/etc they feel after seeing a simulation, and then they can write what they think the fluid is
 
         \subsection{Expectations}
 

@@ -10,5 +10,15 @@
 \BOOKMARK [2][-]{subsection.4.3}{Misc}{section.4}% 10
 \BOOKMARK [1][-]{section.5}{Result}{}% 11
 \BOOKMARK [1][-]{section.6}{Conclusions}{}% 12
-\BOOKMARK [2][-]{subsection.6.1}{Rendering model}{section.6}% 13
-\BOOKMARK [2][-]{subsection.6.2}{Particle model}{section.6}% 14
+\BOOKMARK [2][-]{subsection.6.1}{Limitations on the rendering model}{section.6}% 13
+\BOOKMARK [2][-]{subsection.6.2}{Particle model, optimizations to the SPH algorithm}{section.6}% 14
+\BOOKMARK [2][-]{subsection.6.3}{Optimizations to the metaballs rendering technique}{section.6}% 15
+\BOOKMARK [2][-]{subsection.6.4}{Summary}{section.6}% 16
+\BOOKMARK [1][-]{section.7}{Division of responsibility}{}% 17
+\BOOKMARK [1][-]{section.8}{Reflections on the project}{}% 18
+\BOOKMARK [1][-]{section.9}{Idea for a perceptual study}{}% 19
+\BOOKMARK [2][-]{subsection.9.1}{Hypothesis}{section.9}% 20
+\BOOKMARK [2][-]{subsection.9.2}{Target group}{section.9}% 21
+\BOOKMARK [2][-]{subsection.9.3}{Procedure}{section.9}% 22
+\BOOKMARK [2][-]{subsection.9.4}{Metrics \(Questions\)}{section.9}% 23
+\BOOKMARK [2][-]{subsection.9.5}{Expectations}{section.9}% 24
