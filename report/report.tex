@@ -305,14 +305,16 @@
         A high enough cell count will make the fluid appear smooth and seamless, but as the cell count decreases, the sharp edges of the mesh will become visible and the mesh as a whole will appear coarse and chunky.
 
         In order to find out wether the voxel shader or the particle model were the performance bottleneck, we ran a series of tests of the same simulation, with varying numbers of particles.
-        The test was run on a NVIDIA Geforce GTX 1050 Ti.
+        The test was run on a NVIDIA Geforce GTX 1050 Ti, which can be classified as a medium-tier to high-tier latop graphics card.
         For each test we noted the maximum voxel cell count we could use while still running the simulation reliably above 30 frames per second.
         The following table lists the mumber of metaballs vs the maximum voxel grid cell count we could use before the framerate would drop below 30 fps:
 
         \begin{tabular}{ l | c | r }
-          50 & 120 \\
-          20 & 160 \\
-          5 & 200 \\
+            voxel grid size & max balls at 30 fps & max balls at 60 fps \\
+            80 & 180 & 130 \\
+            50 & 295 & 205 \\
+            20 & 295 & 205 \\
+            5 & 300 & 210 \\
         \end{tabular}
 
         Finally: disabling the metaball filter completely, and just running the voxel shader itself, yielded a maximum voxel cell count of 310 units before the framrate dropped below 30.
