@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Making Voxel Cubes – SPH Fluid Simulation Dev Blog – Final Project for DH2323 Computer Graphics and Interaction Spring 2019</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="More classes are being added to our program. The Metaball class is used to define the position and radius of a metaball in a 3D space. And we added some keyboard controls over our first metaball.
+
+" />
+    <meta property="og:description" content="More classes are being added to our program. The Metaball class is used to define the position and radius of a metaball in a 3D space. And we added some keyboard controls over our first metaball.
+
+" />
+    
+    <meta name="author" content="SPH Fluid Simulation Dev Blog" />
+
+    
+    <meta property="og:title" content="Making Voxel Cubes" />
+    <meta property="twitter:title" content="Making Voxel Cubes" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/metaballs-glfw/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="SPH Fluid Simulation Dev Blog - Final Project for DH2323 Computer Graphics and Interaction Spring 2019" href="/metaballs-glfw/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/metaballs-glfw/" class="site-avatar"><img src="" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/metaballs-glfw/">SPH Fluid Simulation Dev Blog</a></h1>
+            <p class="site-description">Final Project for DH2323 Computer Graphics and Interaction Spring 2019</p>
+          </div>
+
+          <nav>
+            <a href="/metaballs-glfw/">Blog</a>
+            <a href="/metaballs-glfw/about">About</a>
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>Making Voxel Cubes</h1>
+  <div class="date">
+    Written on March 28, 2019
+  </div>
+  <div class="entry">
+    <p>More classes are being added to our program. The Metaball class is used to define the position and radius of a metaball in a 3D space. And we added some keyboard controls over our first metaball.</p>
+
+<p>The metaball can now be controlled with WASD for XZ-plane movement, Shift and Space for Y-axis movement. And we programmed the metaball to wrap itself if it ever goes out of the boundary.</p>
+
+<p>For rendering the metaball, I programmed it in a way that it renders a solid box if a point in the grid falls within the metaball’s radius. Otherwise, do not show anything. This can be achieved by the following shader code:</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">layout</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="k">in</span><span class="p">;</span>
+<span class="k">layout</span><span class="p">(</span><span class="n">triangle_strip</span><span class="p">,</span> <span class="n">max_vertices</span> <span class="o">=</span> <span class="mi">14</span><span class="p">)</span> <span class="k">out</span><span class="p">;</span>
+
+<span class="k">in</span> <span class="n">vData</span><span class="p">{</span>
+    <span class="kt">vec3</span> <span class="n">position</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">vertices</span><span class="p">[];</span>
+
+<span class="k">out</span> <span class="n">fData</span><span class="p">{</span>
+    <span class="kt">vec3</span> <span class="n">position</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">frag</span><span class="p">;</span>
+
+<span class="k">struct</span> <span class="n">Metaball</span><span class="p">{</span>
+    <span class="kt">vec3</span> <span class="n">position</span><span class="p">;</span>
+    <span class="kt">float</span> <span class="n">radius</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="k">uniform</span> <span class="n">Metaball</span> <span class="n">metaball</span><span class="p">;</span>
+<span class="k">uniform</span> <span class="kt">float</span> <span class="n">voxelHalfLength</span><span class="p">;</span>
+<span class="k">uniform</span> <span class="kt">mat4</span> <span class="n">MVP</span><span class="p">;</span>
+
+<span class="k">const</span> <span class="kt">int</span> <span class="n">INDICES</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span> <span class="o">=</span> <span class="kt">int</span><span class="p">[</span><span class="mi">14</span><span class="p">](</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span> <span class="p">);</span>    <span class="c1">//  minimalistic way to define a unit cube
+</span>
+<span class="kt">void</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// voxel is not inside the sphere
+</span>    <span class="k">if</span><span class="p">(</span><span class="n">distance</span><span class="p">(</span><span class="n">metaball</span><span class="p">.</span><span class="n">position</span><span class="p">,</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">position</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">metaball</span><span class="p">.</span><span class="n">radius</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">EndPrimitive</span><span class="p">();</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// define eight corner vertices for the cube (voxel)
+</span>    <span class="kt">vec3</span> <span class="n">pos</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>
+    <span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">position</span> <span class="o">+</span> <span class="kt">vec3</span><span class="p">(</span><span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">);</span>
+    <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">position</span> <span class="o">+</span> <span class="kt">vec3</span><span class="p">(</span><span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">);</span>
+    <span class="n">pos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">position</span> <span class="o">+</span> <span class="kt">vec3</span><span class="p">(</span><span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">);</span>
+    <span class="n">pos</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">position</span> <span class="o">+</span> <span class="kt">vec3</span><span class="p">(</span><span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">);</span>
+    <span class="n">pos</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">position</span> <span class="o">+</span> <span class="kt">vec3</span><span class="p">(</span><span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">);</span>
+    <span class="n">pos</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">position</span> <span class="o">+</span> <span class="kt">vec3</span><span class="p">(</span><span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">);</span>
+    <span class="n">pos</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">position</span> <span class="o">+</span> <span class="kt">vec3</span><span class="p">(</span><span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">);</span>
+    <span class="n">pos</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">position</span> <span class="o">+</span> <span class="kt">vec3</span><span class="p">(</span><span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">);</span>
+    
+    <span class="c1">// push vertex to primitive
+</span>    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">14</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">frag</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">position</span><span class="p">;</span>
+        <span class="nb">gl_Position</span> <span class="o">=</span> <span class="n">MVP</span> <span class="o">*</span> <span class="kt">vec4</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="n">INDICES</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">);</span>
+        <span class="n">EmitVertex</span><span class="p">();</span>
+    <span class="p">}</span>
+    <span class="n">EndPrimitive</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The metaball is taking its shape now!</p>
+
+<p><img src="/metaballs-glfw/images/voxel-ball.png" alt="" /></p>
+
+<p>Alex has further made it to be behaving more like a real metaball by implementing a quadratic metasurface model into the geometry shader. It looks something like this:</p>
+
+<p><img src="/metaballs-glfw/images/voxel-connect.png" alt="" /></p>
+
+<p>Pretty cool! For the next goal, instead of rendering blocky surfaces, we would like to implement the marching cubes algorithm inside the geometry shader.</p>
+
+  </div>
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/Alexander-Hjelm/metaballs-glfw"><i class="svg-icon github"></i></a>
+
+
+
+
+
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>

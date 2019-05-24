@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Marching Cubes – SPH Fluid Simulation Dev Blog – Final Project for DH2323 Computer Graphics and Interaction Spring 2019</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="While doing some online research on marching cubes in OpenGL, I realised most of them are implemented in CUDA or other GPU programming language. Only some of them like the one on icare3d.org uses geometry shader to compute the marching cubes algorithm. So I gave it a try and followed his implementation.
+
+" />
+    <meta property="og:description" content="While doing some online research on marching cubes in OpenGL, I realised most of them are implemented in CUDA or other GPU programming language. Only some of them like the one on icare3d.org uses geometry shader to compute the marching cubes algorithm. So I gave it a try and followed his implementation.
+
+" />
+    
+    <meta name="author" content="SPH Fluid Simulation Dev Blog" />
+
+    
+    <meta property="og:title" content="Marching Cubes" />
+    <meta property="twitter:title" content="Marching Cubes" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/metaballs-glfw/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="SPH Fluid Simulation Dev Blog - Final Project for DH2323 Computer Graphics and Interaction Spring 2019" href="/metaballs-glfw/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/metaballs-glfw/" class="site-avatar"><img src="" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/metaballs-glfw/">SPH Fluid Simulation Dev Blog</a></h1>
+            <p class="site-description">Final Project for DH2323 Computer Graphics and Interaction Spring 2019</p>
+          </div>
+
+          <nav>
+            <a href="/metaballs-glfw/">Blog</a>
+            <a href="/metaballs-glfw/about">About</a>
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>Marching Cubes</h1>
+  <div class="date">
+    Written on March 29, 2019
+  </div>
+  <div class="entry">
+    <p>While doing some online research on marching cubes in OpenGL, I realised most of them are implemented in CUDA or other GPU programming language. Only some of them like the one on <a href="http://www.icare3d.org/codes-and-projects/codes/opengl_geometry_shader_marching_cubes.html">icare3d.org</a> uses geometry shader to compute the marching cubes algorithm. So I gave it a try and followed his implementation.</p>
+
+<p>I carefully stepped through his implementation and recreated in the geometry shader. And I set the position and radius of the metaballs one-by-one by passing them as some separate uniforms. However, this weird glitch occurs when I set the metaball count in the for-loop as a uniform.</p>
+
+<p><img src="/metaballs-glfw/images/marching-cubes-glitch.png" alt="" /></p>
+
+<p>This was later discovered that OpenGL 4.1 does not support variables in a loop inside any shaders. We could only define the number of iterations by a constant value. So for now, we hard-code a constant for the inverse quadratic calculation first. And it works fine:</p>
+
+<p><img src="/metaballs-glfw/images/marching-cubes-working.png" alt="" /></p>
+
+<p>Two metaballs are merging like how they should behave. Great! I also calculated the surface normal for later shading uses. The above image shows the surface normal in RGB colors.</p>
+
+  </div>
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/Alexander-Hjelm/metaballs-glfw"><i class="svg-icon github"></i></a>
+
+
+
+
+
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>

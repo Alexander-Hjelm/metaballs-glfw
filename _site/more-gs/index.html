@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>More Geometry Shader – SPH Fluid Simulation Dev Blog – Final Project for DH2323 Computer Graphics and Interaction Spring 2019</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="I have done more experiments on the geometry shader since the last blog update. And I also defined the PotentialField class for simulating a scalar field.
+
+" />
+    <meta property="og:description" content="I have done more experiments on the geometry shader since the last blog update. And I also defined the PotentialField class for simulating a scalar field.
+
+" />
+    
+    <meta name="author" content="SPH Fluid Simulation Dev Blog" />
+
+    
+    <meta property="og:title" content="More Geometry Shader" />
+    <meta property="twitter:title" content="More Geometry Shader" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/metaballs-glfw/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="SPH Fluid Simulation Dev Blog - Final Project for DH2323 Computer Graphics and Interaction Spring 2019" href="/metaballs-glfw/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/metaballs-glfw/" class="site-avatar"><img src="" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/metaballs-glfw/">SPH Fluid Simulation Dev Blog</a></h1>
+            <p class="site-description">Final Project for DH2323 Computer Graphics and Interaction Spring 2019</p>
+          </div>
+
+          <nav>
+            <a href="/metaballs-glfw/">Blog</a>
+            <a href="/metaballs-glfw/about">About</a>
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>More Geometry Shader</h1>
+  <div class="date">
+    Written on March 26, 2019
+  </div>
+  <div class="entry">
+    <p>I have done more experiments on the geometry shader since the last blog update. And I also defined the PotentialField class for simulating a scalar field.</p>
+
+<p>The scalar field is defined by the vertex position of the minimum corner and the maximum corner, together with the resolution parameter. The resolution parameter is simply describing how many voxels should be present in each side of the potential field. For example, if we set the grid resolution to 50, there will be 50 x 50 x 50 voxels forming the whole scalar field.</p>
+
+<p>The scalar field is then passed to our shaders with a vertex buffer defining every single center point of a voxel. As the input primitive here is a single point, it is better to visualize them clearer in some way. Geometry shader is the solution.</p>
+
+<p>I then use the voxel’s position as the input and output a triangle for each voxel. Here’s the result:</p>
+
+<p><img src="/metaballs-glfw/images/more-gs-1.png" alt="" /></p>
+
+<p>It is simply done by appending and offseting the three vertices that constructs the output triangle.</p>
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">layout</span> <span class="p">(</span><span class="n">point</span><span class="p">)</span> <span class="k">in</span><span class="p">;</span>
+<span class="k">layout</span> <span class="p">(</span><span class="n">triangle_strip</span><span class="p">,</span> <span class="n">max_vertices</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span> <span class="k">out</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>   
+    <span class="nb">gl_Position</span> <span class="o">=</span> <span class="n">gl_in</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nb">gl_Position</span> <span class="o">+</span> <span class="kt">vec4</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">);</span>
+    <span class="n">EmitVertex</span><span class="p">();</span>
+    <span class="nb">gl_Position</span> <span class="o">=</span> <span class="n">gl_in</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nb">gl_Position</span> <span class="o">+</span> <span class="kt">vec4</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">1</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">1</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">);</span>
+    <span class="n">EmitVertex</span><span class="p">();</span>
+    <span class="nb">gl_Position</span> <span class="o">=</span> <span class="n">gl_in</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nb">gl_Position</span> <span class="o">+</span> <span class="kt">vec4</span><span class="p">(</span><span class="o">-</span><span class="mi">0</span><span class="p">.</span><span class="mi">1</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">1</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">);</span>
+    <span class="n">EmitVertex</span><span class="p">();</span>
+    <span class="n">EndPrimitive</span><span class="p">();</span>
+<span class="p">}</span> 
+</code></pre></div></div>
+
+<p><img src="/metaballs-glfw/images/more-gs-2.png" alt="" /></p>
+
+<p>And for fun, I colored them according to its world position and obtained the above result!</p>
+
+  </div>
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/Alexander-Hjelm/metaballs-glfw"><i class="svg-icon github"></i></a>
+
+
+
+
+
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>
