@@ -298,11 +298,11 @@
 
     \section{Conclusions}
     
-        \subsection{Rendering model}
+        \subsection{Limitations on the rendering model}
         
         One of our main obstacles with the simulation was that we could not run it with a high enough voxel grid count to render an impressive looking fluid on a large simulation domain.
         The cell count of the voxel grid is simply the resolution at which the fluid can be renderered.
-        A high enough cell count will make the fluid appear smooth and seamless, but as the cell count decreases, the sharp edges of the mesh will become visible and the mesh as a whole will appear coarse and chunky.
+        A high enough cell count will make the fluid appear smooth and seamless, but as the cell count decreases, the sharp edges of the cube marched mesh will become visible and the mesh as a whole will appear coarse and chunky.
 
         In order to find out wether the voxel shader or the particle model were the performance bottleneck, we ran a series of tests of the same simulation, with varying numbers of particles.
         The test was run on a NVIDIA Geforce GTX 1050 Ti, which can be classified as a medium-tier to high-tier latop graphics card.
@@ -323,25 +323,25 @@
         To render an impressive fluid in a medium sized voxel grid, it would be nice if we could optimize the particle model so that we could run in the order of 100 particles at a voxel grid size of 200.
         The following section about the particle model will discuss some ideas for how this could be achieved in theory.
 
-        \subsection{Particle model}
+        \subsection{Particle model, optimizations to the SPH algorithm}
         It seems that the industry standard for fluid simulation in high quality games and video is the Smoothed Particle Hydrodynamics (SPH) model with Ellipsoid Splatting rendering.
         The SPH model uses nearest neighbour search to find out how a particle should collide.
-        Ryan L. Guy presented his SPH implementation in a paper for the University of Virginia. He profiled his simulation times, and from the results we can see that the majority of the simulation time (around 75\%-85\%) is spent in the nearest neighbour search.
+        Ryan L. Guy, whose SPH implementation we created a naive version of, has profiled his simulation times in his paper for the University of Virginia. From the results we can see that the majority of the simulation time (around 75\%-85\%) is spent in the nearest neighbour search.
         Thus the goal for the particle model must be to optimize the nearest neighbour search for all particles.
-        Guy has done this by implementing a spatial grid that functions as a lookup table for the particles.
-        Any particle will begin its nearest neighbour search in the grid cell in which it is contained, and continues to search through the nearest 26 cells until the nearest neighbour is found.
-        The fixed grid size was set to the one smoothing radius of the particle system, which is the maximum distance at which any two particles will interact.
         \cite{guy15}
-
-        In comparison with our implementation, currently we are very much brute forcing when calculating the potential field over all particles.
+        Guy has done this by implementing a spatial grid that functions as a lookup table for the particles, while our implmentation uses a brute force search ovar all other particles.
+        This severely limits the number of particles that can be modelled, 
         For each voxel grid cell, all particles and their influences on that point are taken into account, even if they are so far away that their contribution of the field is negligible.
         We can however use Guy's idea of spatial subdivision, by assigning the particles to their own grid cells, to determine which range of particles should realistically have influence over a given point, before iterating through them 
+        Any particle will begin its nearest neighbour search in the grid cell in which it is contained, and continues to search through the nearest 26 cells until the nearest neighbour is found.
+        The fixed grid size was set to the one smoothing radius of the particle system, which is the maximum distance at which any two particles will interact.
         We imagine implementing this as a spatial structure that is embedded in the texture that sends the particle positions to the GPU.
         Each Y-coordinate of the texture could represent a grid cell, and all pixels on that column would still represent the particles that are in that cell, their positions and sizes.
         Even after transforming the 3D grid to a linear structure one could simply define a lookup function that continues the nearest neighbor search in the neighboring cells, and terminating after a certain depth if no neighbor particles are found.
         We could very well experiment with different values of the smoothing radius and thus the fixed grid size, but a good initial guess might be the radius from a particle center at which the potential field evaluates to some low threshold, let us say 0.01. 
         This form of spatial subdivision would allow for more particles in the simulation, but since the voxel shader itself cannot run reliably with a grid size above 200-300 units, it would not yield the necessary performance increase that is needed to simulate particles in a high-resolution domain.
 
+        \subsection{Optimizations to the metaballs rendering technique}
         Yet another performance problem comes from the fact that the division step in our metaball potential function is computationally expensive.
         Ryan Geiss (whose tutorial on the metaball isosurface model we used for this project) came with a suggestion for an approximate polynomial function which should in theory be faster on the GPU. His suggested function was:
 
@@ -351,9 +351,15 @@
 
         This potential field function also has the neat property that it evaluates to 0 at $r=\frac{1}{\sqrt{2}}$, which means that you could do spatial optimization by only evaluating the points that fall within the radius of $r=\frac{1}{\sqrt{2}}$ of a singe metaball's center.
         \cite{geiss00}
-
         Our prediction is that this would yield a similar performance increase to implementing a naive spacial subdivision, but we are still not solving the problem that the voxel shader itself is expensive.
-        To address this, our suggestion would be to redo the rendering model and instead use a point-based or ellipsoid-based splatting rendering method, which would be much more ideal for real time fluid simulation.
+        To address this, our suggestion would be to redo the rendering model and instead use a point-based rendering method, which would be much more ideal for real time fluid simulation.
+
+        \subsection{Summary}
+        To conclude, we believe that the key to a more impressive fluid simulation is to optimize our SPH implementation so that each particle can do the nearest neighbour search more selectively, as well as to use another renderering method, other than the marching cubes method.
+        We suggest looking at point splatting for this, which is simply a method of rendering a circle or ellipsoid at the particle's position, that orients itself depending on the surface direction.
+        If many particles accumulate in one area, that area will appear to be more concenctrated.
+        Much in agreement with our hypthesis, it seems that this is a standard method when it comes to rendering fluids in real time.
+        Since point-based methods operate on a boundless point cloud, they also has the nice property of being domain-independent, which means you don't need to confine the fluid to a bounding box as in the case of marching cubes or any other voxel-based rendering method. This would make them more ideal for use in a game enviroment.
 
 	\end{multicols}
 
