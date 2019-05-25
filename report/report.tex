@@ -1,3 +1,4 @@
+
 \documentclass{article}
 
 \usepackage{graphicx}
@@ -285,7 +286,7 @@
     \section{Result}
         Figure 4 shows three still images of our final rendering. 
         An animated video can be found here:
-        \url{https://youtu.be/jmScNqchXs0}.
+        \url{https://youtu.be/l9KESr-Frjc}.
 
         Both the figure and the video show the same real time simulation, consisting of 100 particles and a voxel grid size of 80 units.
         The same physics and lightning models that were mentioned at the end of section 4 have both been applied.
@@ -307,7 +308,7 @@
         A high enough cell count will make the fluid appear smooth and seamless, but as the cell count decreases, the sharp edges of the cube marched mesh will become visible and the mesh as a whole will appear coarse and chunky.
 
         In order to find out whether the voxel shader or the particle model were the performance bottleneck, we ran a series of tests of the same simulation, with varying numbers of particles.
-        The test was run on a NVIDIA Geforce GTX 1050 Ti, which can be classified as a medium-tier to high-tier laptop graphics card.
+        The test was run on a NVIDIA GeForce GTX 1050 Ti, which can be classified as a medium-tier to high-tier laptop graphics card.
         For each test we noted the maximum voxel cell count we could use while still running the simulation reliably above 30 frames per second.
         The following table lists the number of metaballs vs the maximum voxel grid cell count we could use before the frame rate would drop below 30 fps:
 
@@ -372,18 +373,18 @@
 
     \section{Reflections on the project}
 
-    By far, the biggest problem we encountered was a graphical glitch that only occured on one of our computers. Inside the shader program we had not initialized the vec3 array containing the metaball positions, meaning that upon declaration it was given whatever values were stored in memory before. This resulted in strange behaviors, and what made debugging hard was that our computers treated this error differently.
+    By far, the biggest problem we encountered was a graphical glitch that only occurred on one of our computers. Inside the shader program we had not initialized the vec3 array containing the metaball positions, meaning that upon declaration it was given whatever values were stored in memory before. This resulted in strange behaviors, and what made debugging hard was that our computers treated this error differently.
     When the program was compiled and run on Tsz Kin's MacBook Pro, the simulation seemed to work perfectly fine, whereas on Alexander's linux PC we encountered these glitches. This led us to believe that we were actually running different version of OpenGL, and we began debugging library compatibility issues. We only found out after explaining the problem to a teacher's assistant, but by then we had spent a week without making any progress.
 
-    Needless to say, we have learnt our lesson of the importance of manual memory management.
+    Needless to say, we have learned our lesson of the importance of manual memory management.
     We only maintain that a lot of time could have been saved, had we thought of this before.
     After all there is no denying that the task was of a very hard level for someone of our knowledge level of C++. 
 
     Other than that we did not encounter a lot of problems, and the project as a whole has been a stimulating and fascinating journey.
-    We belive it was a good project because the hierarchical nature of it, which allowed us to progress just as far as we wanted.
+    We believe it was a good project because the hierarchical nature of it, which allowed us to progress just as far as we wanted.
     We could easily begin with creating a simple Hello Triangle application, and we could keep building on that, always having the next intermediate goal in mind, all the way to the final render.
     Both of us appreciate the we now have the overall OpenGL knowledge required for graphics and games programming, and we will most likely use this very project as a base to start future work on.
-    When debugging we also got to use renderdoc to examine our shader programs, which we both now have valuable experience with.
+    When debugging we also got to use RenderDoc to examine our shader programs, which we both now have valuable experience with.
     Our computers treated this differently. When compiled and run on Tsz Kin's MacBook Pro, the simulation seemed to work perfectly fine, whereas on Alexander's Linux PC we encountered these glitches. This led us to believe that we were actually running different version of OpenGL, and we began debugging library compatibility issues. We only found out after explaining the problem to a teacher's assistant, but by then we had spend a week without making any progress.
 
     \section{Idea for a perceptual study}
@@ -402,12 +403,12 @@
             
         \subsection{Procedure}
 
-            We would begin by making a simple fluid simulation with a scene model that can collide with a fluid object, e.g. the stanford bunny. In this scene, we will be able to cofigure the properties of the fluid and spawn a fluid body on top of the bunny model, so that the viscous and adhesive properties become clearly visible. For example, if the fluid is very adhesive, some particles of the fluid body would stick to the bunny. Our inspiration to this setup comes from a scene in the NVIDIA Flex demo, as seen in figure 6.
+            We would begin by making a simple fluid simulation with a scene model that can collide with a fluid object, e.g. the Stanford bunny. In this scene, we will be able to configure the properties of the fluid and spawn a fluid body on top of the bunny model, so that the viscous and adhesive properties become clearly visible. For example, if the fluid is very adhesive, some particles of the fluid body would stick to the bunny. Our inspiration to this setup comes from a scene in the NVIDIA Flex demo, as seen in figure 6.
             \begin{figure}[H]
                 \centering
                 \begin{minipage}[b]{0.5\textwidth}
                     \includegraphics[width=\textwidth]{img/flex-bunny.png}
-                    \caption{An example of how our scene could look, where a milk-like fluid interacts with a stanford bunny model. \cite{nvidia-flex}}
+                    \caption{An example of how our scene could look, where a milk-like fluid interacts with a Stanford bunny model. \cite{nvidia-flex}}
                     \label{fig:flex-bunny}
                 \end{minipage}
             \end{figure}
@@ -419,13 +420,13 @@
                 \item \textbf{Milk}: not very viscous, not very adhesive, white and very reflective with no translucency.
             \end{itemize}
 
-            We would show each respondent a random selection of fluids, perhaps 4 or 5, in a random order. The repondent then responds to a questionaire where we ask them questions about their experience with the animation. A few example metrics could be:
+            We would show each respondent a random selection of fluids, perhaps 4 or 5, in a random order. The respondent then responds to a questionnaire where we ask them questions about their experience with the animation. A few example metrics could be:
             \begin{itemize}
                 \item How satisfied/dissatisfied the observer is.
                 \item How pleased/disgusted the observer is.
             \end{itemize}
             
-            Finally, we would ask the respondent what material they think the fluid represents, so that we can make a meaningful assesment of their answers based on what fluid they think they were percieveing. We would do this last of all, so as to not color the respondents' expectations when answering the other questions
+            Finally, we would ask the respondent what material they think the fluid represents, so that we can make a meaningful assessment of their answers based on what fluid they think they were perceiving. We would do this last of all, so as to not color the respondents' expectations when answering the other questions
 
         \subsection{Expectations}
 

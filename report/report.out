@@ -1,23 +1,24 @@
 \BOOKMARK [1][-]{section.1}{Summary}{}% 1
-\BOOKMARK [1][-]{section.2}{Introduction}{}% 2
-\BOOKMARK [1][-]{section.3}{Theory}{}% 3
-\BOOKMARK [2][-]{subsection.3.1}{Metaball isosurface model}{section.3}% 4
-\BOOKMARK [2][-]{subsection.3.2}{Marching cubes}{section.3}% 5
-\BOOKMARK [2][-]{subsection.3.3}{Smoothed Particle Hydrodynamics}{section.3}% 6
-\BOOKMARK [1][-]{section.4}{Implementation}{}% 7
-\BOOKMARK [2][-]{subsection.4.1}{Marching cubes}{section.4}% 8
-\BOOKMARK [2][-]{subsection.4.2}{Smoothed Particles Hydrodynamics}{section.4}% 9
-\BOOKMARK [2][-]{subsection.4.3}{Misc}{section.4}% 10
-\BOOKMARK [1][-]{section.5}{Result}{}% 11
-\BOOKMARK [1][-]{section.6}{Conclusions}{}% 12
-\BOOKMARK [2][-]{subsection.6.1}{Limitations on the rendering model}{section.6}% 13
-\BOOKMARK [2][-]{subsection.6.2}{Particle model, optimizations to the SPH algorithm}{section.6}% 14
-\BOOKMARK [2][-]{subsection.6.3}{Optimizations to the metaballs rendering technique}{section.6}% 15
-\BOOKMARK [2][-]{subsection.6.4}{Summary}{section.6}% 16
-\BOOKMARK [1][-]{section.7}{Division of responsibility}{}% 17
-\BOOKMARK [1][-]{section.8}{Reflections on the project}{}% 18
-\BOOKMARK [1][-]{section.9}{Idea for a perceptual study}{}% 19
-\BOOKMARK [2][-]{subsection.9.1}{Hypothesis}{section.9}% 20
-\BOOKMARK [2][-]{subsection.9.2}{Target group}{section.9}% 21
-\BOOKMARK [2][-]{subsection.9.3}{Procedure}{section.9}% 22
-\BOOKMARK [2][-]{subsection.9.4}{Expectations}{section.9}% 23
+\BOOKMARK [1][-]{section.2}{Project blog}{}% 2
+\BOOKMARK [1][-]{section.3}{Introduction}{}% 3
+\BOOKMARK [1][-]{section.4}{Theory}{}% 4
+\BOOKMARK [2][-]{subsection.4.1}{Metaball isosurface model}{section.4}% 5
+\BOOKMARK [2][-]{subsection.4.2}{Marching cubes}{section.4}% 6
+\BOOKMARK [2][-]{subsection.4.3}{Smoothed Particle Hydrodynamics}{section.4}% 7
+\BOOKMARK [1][-]{section.5}{Implementation}{}% 8
+\BOOKMARK [2][-]{subsection.5.1}{Marching cubes}{section.5}% 9
+\BOOKMARK [2][-]{subsection.5.2}{Smoothed Particles Hydrodynamics}{section.5}% 10
+\BOOKMARK [2][-]{subsection.5.3}{Misc}{section.5}% 11
+\BOOKMARK [1][-]{section.6}{Result}{}% 12
+\BOOKMARK [1][-]{section.7}{Conclusions}{}% 13
+\BOOKMARK [2][-]{subsection.7.1}{Limitations on the rendering model}{section.7}% 14
+\BOOKMARK [2][-]{subsection.7.2}{Particle model, optimizations to the SPH algorithm}{section.7}% 15
+\BOOKMARK [2][-]{subsection.7.3}{Optimizations to the metaballs rendering technique}{section.7}% 16
+\BOOKMARK [2][-]{subsection.7.4}{Summary}{section.7}% 17
+\BOOKMARK [1][-]{section.8}{Division of responsibility}{}% 18
+\BOOKMARK [1][-]{section.9}{Reflections on the project}{}% 19
+\BOOKMARK [1][-]{section.10}{Idea for a perceptual study}{}% 20
+\BOOKMARK [2][-]{subsection.10.1}{Hypothesis}{section.10}% 21
+\BOOKMARK [2][-]{subsection.10.2}{Target group}{section.10}% 22
+\BOOKMARK [2][-]{subsection.10.3}{Procedure}{section.10}% 23
+\BOOKMARK [2][-]{subsection.10.4}{Expectations}{section.10}% 24
