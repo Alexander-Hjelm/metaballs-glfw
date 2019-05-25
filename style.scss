@@ -9,6 +9,10 @@
 @import "variables";
 // Syntax highlighting @import is at the bottom of this file
 
+$hacker-green: #b5e853;
+$hacker-white: #eaeaea;
+$hacker-font: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+
 /**************/
 /* BASE RULES */
 /**************/
@@ -18,9 +22,9 @@ html {
 }
 
 body {
-	background: $white;
-  font: 18px/1.4 $helvetica;
-  color: $darkGray;
+	background: #151515;
+  font: 18px/1.4 $hacker-font;
+  color: $hacker-white;
 }
 
 .container {
@@ -31,8 +35,8 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: $helveticaNeue;
-  color: $darkerGray;
+  font-family: $hacker-font;
+  color: $hacker-green;
   font-weight: bold;
 
   line-height: 1.7;
@@ -69,11 +73,11 @@ p {
 }
 
 a {
-  color: $blue;
+  color: $hacker-green;
   text-decoration: none;
 	cursor: pointer;
   &:hover, &:active {
-    color: $blue;
+    color: #85aa3f;
   }
 }
 
@@ -156,7 +160,7 @@ img {
 
 .masthead {
   padding: 20px 0;
-  border-bottom: 1px solid $lightGray;
+  border-bottom: 1px solid $hacker-green;
 
   @include mobile {
     text-align: center;
@@ -192,9 +196,9 @@ img {
 
 .site-name {
   margin: 0;
-  color: $darkGray;
+  color: $hacker-green;
   cursor: pointer;
-  font-family: $helveticaNeue;
+  font-family: $hacker-font;
   font-weight: 300;
   font-size: 28px;
   letter-spacing: 1px;
@@ -213,7 +217,7 @@ img {
 nav {
   float: right;
   margin-top: 23px; // @TODO: Vertically middle align
-  font-family: $helveticaNeue;
+  font-family: $hacker-font;
   font-size: 18px;
 
   @include mobile {
@@ -225,7 +229,7 @@ nav {
 
   a {
     margin-left: 20px;
-    color: $darkGray;
+    color: $hacker-green;
     text-align: right;
     font-weight: 300;
     letter-spacing: 1px;
@@ -243,7 +247,7 @@ nav {
 
 .posts > .post {
   padding-bottom: 2em;
-  border-bottom: 1px solid $lightGray;
+  border-bottom: 1px dashed $hacker-green;
 }
 
 .posts > .post:last-child {
@@ -273,9 +277,8 @@ nav {
 
 .wrapper-footer {
   margin-top: 50px;
-  border-top: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
-  background-color: $lightGray;
+  border-top: 1px solid $hacker-green;
+  background-color: #202020;
 }
 
 footer {

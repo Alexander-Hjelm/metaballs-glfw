@@ -64,9 +64,9 @@ html {
 }
 
 body {
-  background: #fff;
-  font: 18px/1.4 Helvetica, Arial, sans-serif;
-  color: #333;
+  background: #151515;
+  font: 18px/1.4 Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+  color: #eaeaea;
 }
 
 .container {
@@ -77,8 +77,8 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color: #222;
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
+  color: #b5e853;
   font-weight: bold;
   line-height: 1.7;
   margin: 1em 0 15px;
@@ -115,12 +115,12 @@ p {
 }
 
 a {
-  color: #4183C4;
+  color: #b5e853;
   text-decoration: none;
   cursor: pointer;
 }
 a:hover, a:active {
-  color: #4183C4;
+  color: #85aa3f;
 }
 
 ul, ol {
@@ -194,7 +194,7 @@ img {
 
 .masthead {
   padding: 20px 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #b5e853;
 }
 @media screen and (max-width: 640px) {
   .masthead {
@@ -232,9 +232,9 @@ img {
 
 .site-name {
   margin: 0;
-  color: #333;
+  color: #b5e853;
   cursor: pointer;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
   font-weight: 300;
   font-size: 28px;
   letter-spacing: 1px;
@@ -254,7 +254,7 @@ img {
 nav {
   float: right;
   margin-top: 23px;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", Terminal, monospace;
   font-size: 18px;
 }
 @media screen and (max-width: 640px) {
@@ -267,7 +267,7 @@ nav {
 }
 nav a {
   margin-left: 20px;
-  color: #333;
+  color: #b5e853;
   text-align: right;
   font-weight: 300;
   letter-spacing: 1px;
@@ -281,7 +281,7 @@ nav a {
 
 .posts > .post {
   padding-bottom: 2em;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px dashed #b5e853;
 }
 
 .posts > .post:last-child {
@@ -307,9 +307,8 @@ nav a {
 
 .wrapper-footer {
   margin-top: 50px;
-  border-top: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
-  background-color: #eee;
+  border-top: 1px solid #b5e853;
+  background-color: #202020;
 }
 
 footer {
@@ -317,14 +316,11 @@ footer {
   text-align: center;
 }
 
-.highlight {
-  background-color: #efefef;
-  padding: 7px 7px 7px 10px;
-  border: 1px solid #ddd;
-  -moz-box-shadow: 3px 3px rgba(0, 0, 0, 0.1);
-  -webkit-box-shadow: 3px 3px rgba(0, 0, 0, 0.1);
-  box-shadow: 3px 3px rgba(0, 0, 0, 0.1);
-  margin: 20px 0 20px 0;
+div.highlight {
+  background-color: rgba(0, 0, 0, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  padding: 4px 10px;
   overflow: scroll;
 }
 
@@ -348,7 +344,7 @@ code {
 
 /* Generic */
 .highlight .k {
-  color: #859900;
+  color: #DC322F;
 }
 
 /* Keyword */
@@ -358,7 +354,7 @@ code {
 
 /* Literal */
 .highlight .n {
-  color: #93A1A1;
+  color: #d4bad0;
 }
 
 /* Name */
@@ -388,7 +384,7 @@ code {
 
 /* Comment.Preproc */
 .highlight .c1 {
-  color: #586E75;
+  color: #4bb172;
 }
 
 /* Comment.Single */
@@ -475,7 +471,7 @@ code {
 
 /* Keyword.Reserved */
 .highlight .kt {
-  color: #DC322F;
+  color: #268BD2;
 }
 
 /* Keyword.Type */
@@ -530,7 +526,7 @@ code {
 
 /* Name.Exception */
 .highlight .nf {
-  color: #268BD2;
+  color: #eeba2c;
 }
 
 /* Name.Function */
