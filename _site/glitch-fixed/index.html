@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Glitch Fixed! – SPH Fluid Simulation Dev Blog – Final Project for DH2323 Computer Graphics and Interaction Spring 2019</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="Both of us are exhaused with the unexplainable glitch, so we took a long break during Easter. When we came back from the holiday, Alex discovered what causes this strange behaviour. What a relief! Here’s how Alex explained what happened:
+
+" />
+    <meta property="og:description" content="Both of us are exhaused with the unexplainable glitch, so we took a long break during Easter. When we came back from the holiday, Alex discovered what causes this strange behaviour. What a relief! Here’s how Alex explained what happened:
+
+" />
+    
+    <meta name="author" content="SPH Fluid Simulation Dev Blog" />
+
+    
+    <meta property="og:title" content="Glitch Fixed!" />
+    <meta property="twitter:title" content="Glitch Fixed!" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/metaballs-glfw/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="SPH Fluid Simulation Dev Blog - Final Project for DH2323 Computer Graphics and Interaction Spring 2019" href="/metaballs-glfw/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/metaballs-glfw/" class="site-avatar"><img src="" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/metaballs-glfw/">SPH Fluid Simulation Dev Blog</a></h1>
+            <p class="site-description">Final Project for DH2323 Computer Graphics and Interaction Spring 2019</p>
+          </div>
+
+          <nav>
+            <a href="/metaballs-glfw/">Blog</a>
+            <a href="/metaballs-glfw/about">About</a>
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>Glitch Fixed!</h1>
+  <div class="date">
+    Written on April 25, 2019
+  </div>
+  <div class="entry">
+    <p>Both of us are exhaused with the unexplainable glitch, so we took a long break during Easter. When we came back from the holiday, Alex discovered what causes this strange behaviour. What a relief! Here’s how Alex explained what happened:</p>
+
+<p><img src="/metaballs-glfw/images/fixed-1.png" alt="" /></p>
+
+<p><img src="/metaballs-glfw/images/fixed-2.png" alt="" /></p>
+
+<p>Apparently the memory space on GPU is not initialized, and it could be containing non-zero value. While the marching cubes algorithm doing a summation operation for calculating the isovalues, it was added on top of a non-zero value. The reason why it works on my Macbook Pro laptop but not Alex’s Linux system may because of the Macbook hardware took care of it. Lesson learned here!</p>
+
+<p><img src="/metaballs-glfw/images/phong-1.png" alt="" />
+<img src="/metaballs-glfw/images/phong-2.png" alt="" /></p>
+
+<p>Alex also did some color shading on the fragment shader. He used the basic Blinn-Phong shading model on the metaballs. He then tweaks the grid resolution to make the surface more smooth.</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">in</span> <span class="n">fData</span><span class="p">{</span>
+    <span class="kt">vec3</span> <span class="n">normal</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">frag</span><span class="p">;</span>
+<span class="k">out</span> <span class="kt">vec4</span> <span class="n">frag_colour</span><span class="p">;</span>
+
+<span class="k">uniform</span> <span class="kt">vec3</span> <span class="n">viewVector</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// Phong lightning model
+</span>    <span class="kt">vec3</span> <span class="n">lightDir</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="kt">vec3</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">));</span>
+    <span class="kt">vec3</span> <span class="n">reflectionDir</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">dot</span><span class="p">(</span><span class="n">frag</span><span class="p">.</span><span class="n">normal</span><span class="p">,</span> <span class="n">lightDir</span><span class="p">)</span><span class="o">*</span><span class="n">frag</span><span class="p">.</span><span class="n">normal</span> <span class="o">-</span> <span class="n">lightDir</span><span class="p">;</span>
+
+    <span class="kt">vec3</span> <span class="n">ambientColor</span> <span class="o">=</span> <span class="kt">vec3</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">2</span><span class="p">);</span>
+    <span class="kt">vec3</span> <span class="n">diffuseColor</span> <span class="o">=</span> <span class="kt">vec3</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">2</span><span class="p">);</span>
+    <span class="kt">vec3</span> <span class="n">specularColor</span> <span class="o">=</span> <span class="kt">vec3</span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">8</span><span class="p">);</span>
+    
+    <span class="kt">float</span> <span class="n">shininess</span> <span class="o">=</span> <span class="mi">7</span><span class="p">;</span>
+
+    <span class="kt">vec3</span> <span class="n">finalColor</span> <span class="o">=</span>
+        <span class="n">ambientColor</span>
+        <span class="o">+</span> <span class="n">diffuseColor</span> <span class="o">*</span> <span class="n">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dot</span><span class="p">(</span><span class="o">-</span><span class="n">frag</span><span class="p">.</span><span class="n">normal</span><span class="p">,</span> <span class="n">lightDir</span><span class="p">))</span>
+        <span class="o">+</span> <span class="n">specularColor</span> <span class="o">*</span> <span class="n">pow</span><span class="p">(</span><span class="n">max</span><span class="p">(</span><span class="n">dot</span><span class="p">(</span><span class="n">reflectionDir</span><span class="p">,</span> <span class="n">normalize</span><span class="p">(</span><span class="n">viewVector</span><span class="p">)),</span><span class="mi">0</span><span class="p">),</span> <span class="n">shininess</span><span class="p">);</span>
+
+	<span class="n">frag_colour</span> <span class="o">=</span> <span class="kt">vec4</span><span class="p">(</span><span class="n">finalColor</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>So now we both have the marching cubes commit running on our laptops and the metaballs are now beautifully colored. It is time to more on to actual physics simulation.</p>
+
+  </div>
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/Alexander-Hjelm/metaballs-glfw"><i class="svg-icon github"></i></a>
+
+
+
+
+
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>

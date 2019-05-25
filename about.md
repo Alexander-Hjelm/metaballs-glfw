@@ -4,12 +4,15 @@ title: About
 permalink: /about/
 ---
 
-Some information about you!
+This blog is managed by Andy Chan Tsz Kin.
 
-### More Information
+### Contributers
 
-A place to include any other types of information that you'd like to include about yourself.
-
-### Contact me
-
-[email@domain.com](mailto:email@domain.com)
+- Alexander Hjelm
+    - Email: nick.nertova@gmail.com
+    - Personal Website: [https://groove.cool](https://groove.cool)
+    - GitHub: [Alexander-Hjelm](https://github.com/Alexander-Hjelm)
+- Andy Chan Tsz Kin
+    - Email: andychancse@gmail.com
+    - Personal Website: [https://andychan.work](https://andychan.work)
+    - GitHub: [tkchanat](https://github.com/tkchanat)

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>About – SPH Fluid Simulation Dev Blog – Final Project for DH2323 Computer Graphics and Interaction Spring 2019</title>
+    <title>On No... Glitches – SPH Fluid Simulation Dev Blog – Final Project for DH2323 Computer Graphics and Interaction Spring 2019</title>
 
         <meta charset="utf-8" />
     <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
@@ -9,14 +9,18 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
 
     
-    <meta name="description" content="Final Project for DH2323 Computer Graphics and Interaction Spring 2019">
-    <meta property="og:description" content="Final Project for DH2323 Computer Graphics and Interaction Spring 2019" />
+    <meta name="description" content="I tried to add more and more metaballs into the scene. This works on small numbers of metaballs, like below 10. But above 10, we got some flickering effect. And even above 14, our polygonal mesh starts to become very trippy as shown in the second picture.
+
+" />
+    <meta property="og:description" content="I tried to add more and more metaballs into the scene. This works on small numbers of metaballs, like below 10. But above 10, we got some flickering effect. And even above 14, our polygonal mesh starts to become very trippy as shown in the second picture.
+
+" />
     
     <meta name="author" content="SPH Fluid Simulation Dev Blog" />
 
     
-    <meta property="og:title" content="About" />
-    <meta property="twitter:title" content="About" />
+    <meta property="og:title" content="On No... Glitches" />
+    <meta property="twitter:title" content="On No... Glitches" />
     
 
     <!--[if lt IE 9]>
@@ -49,33 +53,24 @@
     </div>
 
     <div id="main" role="main" class="container">
-      <article class="page">
-
-  <h1>About</h1>
-
+      <article class="post">
+  <h1>On No... Glitches</h1>
+  <div class="date">
+    Written on April  1, 2019
+  </div>
   <div class="entry">
-    <p>This blog is managed by Andy Chan Tsz Kin.</p>
+    <p>I tried to add more and more metaballs into the scene. This works on small numbers of metaballs, like below 10. But above 10, we got some flickering effect. And even above 14, our polygonal mesh starts to become very trippy as shown in the second picture.</p>
 
-<h3 id="contributers">Contributers</h3>
+<p>As you can see here, our program works fine occasionally even on Windows system. However, sometimes it glitched in a strange way which we could not explain what is happening. Even we used <a href="https://renderdoc.org">RenderDoc</a> for assisting the debugging process, we have no clues how we get the glitch.</p>
 
-<ul>
-  <li>Alexander Hjelm
-    <ul>
-      <li>Email: nick.nertova@gmail.com</li>
-      <li>Personal Website: <a href="https://groove.cool">https://groove.cool</a></li>
-      <li>GitHub: <a href="https://github.com/Alexander-Hjelm">Alexander-Hjelm</a></li>
-    </ul>
-  </li>
-  <li>Andy Chan Tsz Kin
-    <ul>
-      <li>Email: andychancse@gmail.com</li>
-      <li>Personal Website: <a href="https://andychan.work">https://andychan.work</a></li>
-      <li>GitHub: <a href="https://github.com/tkchanat">tkchanat</a></li>
-    </ul>
-  </li>
-</ul>
+<p><img src="/metaballs-glfw/images/glitch-1.png" alt="" /></p>
+
+<p><img src="/metaballs-glfw/images/glitch-2.png" alt="" /></p>
+
+<p>Hopefully, we could figure out the reasons causing this before moving on to our next update. :(</p>
 
   </div>
+  
 </article>
 
     </div>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Applying Gravity – SPH Fluid Simulation Dev Blog – Final Project for DH2323 Computer Graphics and Interaction Spring 2019</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="Alex implemented some mechanical physics helper functions for me to simulate simple gravity on the metaballs. Some of the functions are shown here:
+
+" />
+    <meta property="og:description" content="Alex implemented some mechanical physics helper functions for me to simulate simple gravity on the metaballs. Some of the functions are shown here:
+
+" />
+    
+    <meta name="author" content="SPH Fluid Simulation Dev Blog" />
+
+    
+    <meta property="og:title" content="Applying Gravity" />
+    <meta property="twitter:title" content="Applying Gravity" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/metaballs-glfw/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="SPH Fluid Simulation Dev Blog - Final Project for DH2323 Computer Graphics and Interaction Spring 2019" href="/metaballs-glfw/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/metaballs-glfw/" class="site-avatar"><img src="" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/metaballs-glfw/">SPH Fluid Simulation Dev Blog</a></h1>
+            <p class="site-description">Final Project for DH2323 Computer Graphics and Interaction Spring 2019</p>
+          </div>
+
+          <nav>
+            <a href="/metaballs-glfw/">Blog</a>
+            <a href="/metaballs-glfw/about">About</a>
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>Applying Gravity</h1>
+  <div class="date">
+    Written on May  3, 2019
+  </div>
+  <div class="entry">
+    <p>Alex implemented some mechanical physics helper functions for me to simulate simple gravity on the metaballs. Some of the functions are shown here:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">/////////// PHYSICS HELPERS ////////////
+</span>
+<span class="c1">// Apply a force to the object. This factors in mass. A bigger mass means a bigger force is needed to yield the same change in velocity.
+</span><span class="kt">void</span> <span class="nf">ApplyForce</span><span class="p">(</span><span class="n">glm</span><span class="o">::</span><span class="n">vec3</span> <span class="n">force</span><span class="p">,</span> <span class="kt">float</span> <span class="n">deltaTime</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">ApplyAcceleration</span><span class="p">(</span><span class="n">force</span><span class="o">/</span><span class="n">mass</span><span class="p">,</span> <span class="n">deltaTime</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// Apply an acceleration to the object. Useful for uniform forces like gravity, where the object's mass does not matter.
+</span><span class="kt">void</span> <span class="nf">ApplyAcceleration</span><span class="p">(</span><span class="n">glm</span><span class="o">::</span><span class="n">vec3</span> <span class="n">acceleration</span><span class="p">,</span> <span class="kt">float</span> <span class="n">deltaTime</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">velocity</span> <span class="o">+=</span> <span class="n">acceleration</span> <span class="o">*</span> <span class="n">deltaTime</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Restrict the velocity to a maximum value
+</span><span class="kt">void</span> <span class="nf">LimitVelocity</span><span class="p">(</span><span class="kt">float</span> <span class="n">terminalVelocity</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">float</span> <span class="n">vMin</span> <span class="o">=</span> <span class="n">glm</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">glm</span><span class="o">::</span><span class="n">length</span><span class="p">(</span><span class="n">velocity</span><span class="p">),</span> <span class="n">terminalVelocity</span><span class="p">);</span>
+    <span class="n">velocity</span> <span class="o">=</span> <span class="n">glm</span><span class="o">::</span><span class="n">normalize</span><span class="p">(</span><span class="n">velocity</span><span class="p">)</span><span class="o">*</span><span class="n">vMin</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Reflect the velocity vector along the given surface normal.
+// The elasicity property determines how much energy is preserved after the collision, and should be between 0.0 -&gt; 1.0.
+</span><span class="kt">void</span> <span class="nf">Bounce</span><span class="p">(</span><span class="n">glm</span><span class="o">::</span><span class="n">vec3</span> <span class="n">surfaceNormal</span><span class="p">,</span> <span class="kt">float</span> <span class="n">elasticity</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">surfaceNormal</span> <span class="o">=</span> <span class="n">glm</span><span class="o">::</span><span class="n">normalize</span><span class="p">(</span><span class="n">surfaceNormal</span><span class="p">);</span>
+    <span class="n">glm</span><span class="o">::</span><span class="n">vec3</span> <span class="n">normalProjected</span> <span class="o">=</span> <span class="n">glm</span><span class="o">::</span><span class="n">dot</span><span class="p">(</span><span class="n">velocity</span><span class="p">,</span> <span class="n">surfaceNormal</span><span class="p">)</span> <span class="o">*</span> <span class="n">surfaceNormal</span><span class="p">;</span>
+    <span class="n">glm</span><span class="o">::</span><span class="n">vec3</span> <span class="n">newDir</span> <span class="o">=</span> <span class="n">velocity</span> <span class="o">-</span> <span class="mf">2.0</span><span class="n">f</span><span class="o">*</span><span class="n">normalProjected</span><span class="p">;</span>
+    <span class="n">velocity</span> <span class="o">=</span> <span class="n">newDir</span> <span class="o">*</span> <span class="n">elasticity</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>We programmed the scalar field boundary such that the every surrounding planes will bounce the metaballs in the opposite direction with elastic collision. The result would be like this:</p>
+
+<p><img src="/metaballs-glfw/images/physics-2.gif" alt="" /></p>
+
+<p>Adjusting some force and collision parameters, the closest result we can get to a liquid was this:</p>
+
+<p><img src="/metaballs-glfw/images/physics-3.gif" alt="" /></p>
+
+<p>In the next update, we plan to add some repulsion force in between each particles so that it looks more like a real-life fluid.</p>
+
+<h1 id="trivia">Trivia</h1>
+<p>When we uncomment the line which caused the glitch before, something oddly aesthetic was displayed.</p>
+
+<p><img src="/metaballs-glfw/images/physics-1.png" alt="" /></p>
+
+<p>Beautiful, isn’t it? ^^</p>
+
+  </div>
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/Alexander-Hjelm/metaballs-glfw"><i class="svg-icon github"></i></a>
+
+
+
+
+
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>

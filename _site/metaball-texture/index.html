@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Metaballs as Texture – SPH Fluid Simulation Dev Blog – Final Project for DH2323 Computer Graphics and Interaction Spring 2019</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="Unfortunately, the last commit did not work on Alex’s Linux system. While I wait for his fix, he is trying to step through the older commits to see where things went wrong.
+
+" />
+    <meta property="og:description" content="Unfortunately, the last commit did not work on Alex’s Linux system. While I wait for his fix, he is trying to step through the older commits to see where things went wrong.
+
+" />
+    
+    <meta name="author" content="SPH Fluid Simulation Dev Blog" />
+
+    
+    <meta property="og:title" content="Metaballs as Texture" />
+    <meta property="twitter:title" content="Metaballs as Texture" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/metaballs-glfw/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="SPH Fluid Simulation Dev Blog - Final Project for DH2323 Computer Graphics and Interaction Spring 2019" href="/metaballs-glfw/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/metaballs-glfw/" class="site-avatar"><img src="" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/metaballs-glfw/">SPH Fluid Simulation Dev Blog</a></h1>
+            <p class="site-description">Final Project for DH2323 Computer Graphics and Interaction Spring 2019</p>
+          </div>
+
+          <nav>
+            <a href="/metaballs-glfw/">Blog</a>
+            <a href="/metaballs-glfw/about">About</a>
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>Metaballs as Texture</h1>
+  <div class="date">
+    Written on April  4, 2019
+  </div>
+  <div class="entry">
+    <p>Unfortunately, the last commit did not work on Alex’s Linux system. While I wait for his fix, he is trying to step through the older commits to see where things went wrong.</p>
+
+<p>Along the debugging process, we have also discussed on the performance optimization. Since we pass all metaballs information using an individual uniform for each metaball attribute, which is slow. We decided to encode the information on a 2D texture.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Define metaball information
+</span><span class="k">const</span> <span class="kt">int</span> <span class="n">metaballCount</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+<span class="kt">float</span> <span class="n">textureArray</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="n">metaballCount</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mf">1.0</span><span class="n">f</span><span class="p">,</span> <span class="mf">1.0</span><span class="n">f</span><span class="p">,</span> <span class="mf">1.0</span><span class="n">f</span><span class="p">,</span> <span class="mf">1.0</span><span class="n">f</span><span class="p">,</span>
+    <span class="mf">0.0</span><span class="n">f</span><span class="p">,</span> <span class="mf">1.0</span><span class="n">f</span><span class="p">,</span> <span class="mf">1.0</span><span class="n">f</span><span class="p">,</span> <span class="mf">1.0</span><span class="n">f</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="c1">// Specify texture slot to be 1. Seems like triTex has already hogged slot 0
+</span><span class="n">glGenTextures</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mbPosTex</span><span class="p">);</span>
+<span class="n">glActiveTexture</span><span class="p">(</span><span class="n">GL_TEXTURE1</span><span class="p">);</span>
+<span class="n">glBindTexture</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">mbPosTex</span><span class="p">);</span>
+
+<span class="c1">// Set texture configurations
+</span><span class="n">glTexParameteri</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_MIN_FILTER</span><span class="p">,</span> <span class="n">GL_NEAREST</span><span class="p">);</span>
+<span class="n">glTexParameteri</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="n">GL_TEXTURE_MAG_FILTER</span><span class="p">,</span> <span class="n">GL_NEAREST</span><span class="p">);</span>
+
+<span class="c1">// Load metaball information onto our texture
+</span><span class="n">glTexImage2D</span><span class="p">(</span><span class="n">GL_TEXTURE_2D</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_RGBA</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">metaballCount</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">GL_RGBA</span><span class="p">,</span> <span class="n">GL_FLOAT</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">textureArray</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>The above code pass our metaball information on the CPU to GPU by using glTexImage2D call. And in the geometry shader, we do the following modification:</p>
+
+<div class="language-glsl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">layout</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="k">in</span><span class="p">;</span>
+<span class="k">layout</span><span class="p">(</span><span class="n">triangle_strip</span><span class="p">,</span> <span class="n">max_vertices</span> <span class="o">=</span> <span class="mi">15</span><span class="p">)</span> <span class="k">out</span><span class="p">;</span>
+
+<span class="k">in</span> <span class="n">vData</span><span class="p">{</span>
+    <span class="kt">vec3</span> <span class="n">position</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">vertices</span><span class="p">[];</span>
+<span class="k">out</span> <span class="n">fData</span><span class="p">{</span>
+    <span class="kt">vec3</span> <span class="n">position</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">frag</span><span class="p">;</span>
+<span class="k">uniform</span> <span class="kt">float</span> <span class="n">voxelHalfLength</span><span class="p">;</span>
+<span class="k">uniform</span> <span class="kt">float</span> <span class="n">isolevel</span><span class="p">;</span>
+<span class="k">uniform</span> <span class="kt">mat4</span> <span class="n">MVP</span><span class="p">;</span>
+
+<span class="k">uniform</span> <span class="kt">sampler2D</span> <span class="n">metaballPosTexture</span><span class="p">;</span>   <span class="c1">// Metaball positions
+</span><span class="k">uniform</span> <span class="kt">isampler2D</span> <span class="n">triTexture</span><span class="p">;</span>  <span class="c1">// Marching Cubes Look-up Table
+</span>
+<span class="c1">// Get triangle table value
+</span><span class="kt">int</span> <span class="n">triTableValue</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="kt">int</span> <span class="n">j</span><span class="p">){</span>
+    <span class="k">return</span> <span class="n">texelFetch</span><span class="p">(</span><span class="n">triTexture</span><span class="p">,</span> <span class="kt">ivec2</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="mi">0</span><span class="p">).</span><span class="n">r</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Compute interpolated vertex along an edge
+</span><span class="kt">vec3</span> <span class="n">VertexInterp</span><span class="p">(</span><span class="kt">float</span> <span class="n">isolevel</span><span class="p">,</span> <span class="kt">vec3</span> <span class="n">v0</span><span class="p">,</span> <span class="kt">vec3</span> <span class="n">v1</span><span class="p">,</span><span class="kt">float</span> <span class="n">l0</span><span class="p">,</span> <span class="kt">float</span> <span class="n">l1</span><span class="p">){</span>
+    <span class="k">return</span> <span class="n">mix</span><span class="p">(</span><span class="n">v0</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="p">(</span><span class="n">isolevel</span><span class="o">-</span><span class="n">l0</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">l1</span><span class="o">-</span><span class="n">l0</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// define eight corner vertices for the cube (voxel)
+</span>    <span class="kt">vec3</span> <span class="n">corners</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>
+    <span class="n">corners</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">position</span> <span class="o">+</span> <span class="kt">vec3</span><span class="p">(</span><span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">);</span>
+    <span class="n">corners</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">position</span> <span class="o">+</span> <span class="kt">vec3</span><span class="p">(</span><span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">);</span>
+    <span class="n">corners</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">position</span> <span class="o">+</span> <span class="kt">vec3</span><span class="p">(</span><span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">);</span>
+    <span class="n">corners</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">position</span> <span class="o">+</span> <span class="kt">vec3</span><span class="p">(</span><span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">);</span>
+    <span class="n">corners</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">position</span> <span class="o">+</span> <span class="kt">vec3</span><span class="p">(</span><span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">);</span>
+    <span class="n">corners</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">position</span> <span class="o">+</span> <span class="kt">vec3</span><span class="p">(</span><span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">);</span>
+    <span class="n">corners</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">position</span> <span class="o">+</span> <span class="kt">vec3</span><span class="p">(</span><span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">);</span>
+    <span class="n">corners</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">position</span> <span class="o">+</span> <span class="kt">vec3</span><span class="p">(</span><span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">+</span><span class="n">voxelHalfLength</span><span class="p">,</span> <span class="o">-</span><span class="n">voxelHalfLength</span><span class="p">);</span>
+
+    <span class="kt">float</span> <span class="n">values</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">vec4</span> <span class="n">rgba</span> <span class="o">=</span> <span class="n">texelFetch</span><span class="p">(</span><span class="n">triTexture</span><span class="p">,</span> <span class="kt">ivec2</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">).</span><span class="n">rgba</span><span class="p">;</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">distance</span><span class="p">(</span><span class="n">metaball</span><span class="p">.</span><span class="n">position</span> <span class="o">+</span> <span class="kt">vec3</span><span class="p">(</span><span class="n">rgba</span><span class="p">.</span><span class="n">b</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">),</span> <span class="n">corners</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1">// find the suitable look-up cube
+</span>    <span class="kt">int</span> <span class="n">cubeindex</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">isolevel</span><span class="p">)</span> <span class="n">cubeindex</span> <span class="o">|=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">isolevel</span><span class="p">)</span> <span class="n">cubeindex</span> <span class="o">|=</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">isolevel</span><span class="p">)</span> <span class="n">cubeindex</span> <span class="o">|=</span> <span class="mi">4</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">isolevel</span><span class="p">)</span> <span class="n">cubeindex</span> <span class="o">|=</span> <span class="mi">8</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">isolevel</span><span class="p">)</span> <span class="n">cubeindex</span> <span class="o">|=</span> <span class="mi">16</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">isolevel</span><span class="p">)</span> <span class="n">cubeindex</span> <span class="o">|=</span> <span class="mi">32</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">isolevel</span><span class="p">)</span> <span class="n">cubeindex</span> <span class="o">|=</span> <span class="mi">64</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">isolevel</span><span class="p">)</span> <span class="n">cubeindex</span> <span class="o">|=</span> <span class="mi">128</span><span class="p">;</span>
+
+    <span class="c1">// Cube is entirely in/out of the surface
+</span>    <span class="k">if</span> <span class="p">(</span><span class="n">cubeindex</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">cubeindex</span> <span class="o">==</span> <span class="mi">255</span><span class="p">)</span>
+        <span class="k">return</span><span class="p">;</span>
+
+    <span class="c1">// Find the vertices where the surface intersects the cube
+</span>    <span class="kt">vec3</span> <span class="n">vertlist</span><span class="p">[</span><span class="mi">12</span><span class="p">];</span>
+    <span class="n">vertlist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="o">=</span> <span class="n">VertexInterp</span><span class="p">(</span><span class="n">isolevel</span><span class="p">,</span><span class="n">corners</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">corners</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="n">vertlist</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="o">=</span> <span class="n">VertexInterp</span><span class="p">(</span><span class="n">isolevel</span><span class="p">,</span><span class="n">corners</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">corners</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">2</span><span class="p">]);</span>
+    <span class="n">vertlist</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>  <span class="o">=</span> <span class="n">VertexInterp</span><span class="p">(</span><span class="n">isolevel</span><span class="p">,</span><span class="n">corners</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="n">corners</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">3</span><span class="p">]);</span>
+    <span class="n">vertlist</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>  <span class="o">=</span> <span class="n">VertexInterp</span><span class="p">(</span><span class="n">isolevel</span><span class="p">,</span><span class="n">corners</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="n">corners</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+    <span class="n">vertlist</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>  <span class="o">=</span> <span class="n">VertexInterp</span><span class="p">(</span><span class="n">isolevel</span><span class="p">,</span><span class="n">corners</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span><span class="n">corners</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">5</span><span class="p">]);</span>
+    <span class="n">vertlist</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>  <span class="o">=</span> <span class="n">VertexInterp</span><span class="p">(</span><span class="n">isolevel</span><span class="p">,</span><span class="n">corners</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span><span class="n">corners</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">6</span><span class="p">]);</span>
+    <span class="n">vertlist</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>  <span class="o">=</span> <span class="n">VertexInterp</span><span class="p">(</span><span class="n">isolevel</span><span class="p">,</span><span class="n">corners</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span><span class="n">corners</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">7</span><span class="p">]);</span>
+    <span class="n">vertlist</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>  <span class="o">=</span> <span class="n">VertexInterp</span><span class="p">(</span><span class="n">isolevel</span><span class="p">,</span><span class="n">corners</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span><span class="n">corners</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">4</span><span class="p">]);</span>
+    <span class="n">vertlist</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span>  <span class="o">=</span> <span class="n">VertexInterp</span><span class="p">(</span><span class="n">isolevel</span><span class="p">,</span><span class="n">corners</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">corners</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">4</span><span class="p">]);</span>
+    <span class="n">vertlist</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span>  <span class="o">=</span> <span class="n">VertexInterp</span><span class="p">(</span><span class="n">isolevel</span><span class="p">,</span><span class="n">corners</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">corners</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">5</span><span class="p">]);</span>
+    <span class="n">vertlist</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="n">VertexInterp</span><span class="p">(</span><span class="n">isolevel</span><span class="p">,</span><span class="n">corners</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="n">corners</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">6</span><span class="p">]);</span>
+    <span class="n">vertlist</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span> <span class="o">=</span> <span class="n">VertexInterp</span><span class="p">(</span><span class="n">isolevel</span><span class="p">,</span><span class="n">corners</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="n">corners</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="n">values</span><span class="p">[</span><span class="mi">7</span><span class="p">]);</span>
+
+    <span class="c1">// push vertex to primitive
+</span>    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">triTableValue</span><span class="p">(</span><span class="n">cubeindex</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">+=</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">frag</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="kt">vec3</span><span class="p">(</span><span class="n">distance</span><span class="p">(</span><span class="n">metaball</span><span class="p">.</span><span class="n">position</span><span class="p">,</span> <span class="n">corners</span><span class="p">[</span><span class="mi">0</span><span class="p">]));</span>
+        <span class="nb">gl_Position</span> <span class="o">=</span> <span class="n">MVP</span> <span class="o">*</span> <span class="kt">vec4</span><span class="p">(</span><span class="n">vertlist</span><span class="p">[</span><span class="n">triTableValue</span><span class="p">(</span><span class="n">cubeindex</span><span class="p">,</span> <span class="n">i</span><span class="p">)],</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">);</span>
+        <span class="n">EmitVertex</span><span class="p">();</span>
+        <span class="nb">gl_Position</span> <span class="o">=</span> <span class="n">MVP</span> <span class="o">*</span> <span class="kt">vec4</span><span class="p">(</span><span class="n">vertlist</span><span class="p">[</span><span class="n">triTableValue</span><span class="p">(</span><span class="n">cubeindex</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)],</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">);</span>
+        <span class="n">EmitVertex</span><span class="p">();</span>
+        <span class="nb">gl_Position</span> <span class="o">=</span> <span class="n">MVP</span> <span class="o">*</span> <span class="kt">vec4</span><span class="p">(</span><span class="n">vertlist</span><span class="p">[</span><span class="n">triTableValue</span><span class="p">(</span><span class="n">cubeindex</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">)],</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">);</span>
+        <span class="n">EmitVertex</span><span class="p">();</span>
+    <span class="p">}</span>
+    <span class="n">EndPrimitive</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The result is really effective. Our performance has boosted a lot. And it does not have any side-effects on our rendering too. Now we have to carry on and figure out how to make the marching cubes commit work on both our laptops.</p>
+
+  </div>
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/Alexander-Hjelm/metaballs-glfw"><i class="svg-icon github"></i></a>
+
+
+
+
+
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>
