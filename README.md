@@ -2,7 +2,7 @@
 :bookmark_tabs: Final Project for DH2323 Computer Graphics and Interaction Spring 2019 in KTH.
 
 ### Screenshot
-![Screenshot](diary/screenshot.gif)
+![Screenshot](images/sph.gif)
 
 ## Binary Distribution (Recommended)
 Since we have some dependent files in our releases, we advise you to put both `build` and `shader` folder under the same directory. And run the application inside `build/` directory.
